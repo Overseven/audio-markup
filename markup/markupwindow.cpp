@@ -19,9 +19,7 @@ MarkupWindow::MarkupWindow(QWidget *parent, Markup::MarkupData *_markup_data) :
 
     connect(ui->listView_audio_files, &QListView::clicked, this, &MarkupWindow::file_selection_changed);
     connect(ui->controls, &GraphControls::mode_updated, this, &MarkupWindow::set_mode);
-    connect(ui->plot, &QCustomPlot::mouseDoubleClick, this, &MarkupWindow::plot_double_clicked);
     connect(ui->plot, &QCustomPlot::itemClick, this, &MarkupWindow::markup_item_selected);
-    connect(ui->plot, &QCustomPlot::selectionChangedByUser, this, &MarkupWindow::selection_changed_by_user);
 }
 
 MarkupWindow::~MarkupWindow()
@@ -68,17 +66,13 @@ void MarkupWindow::set_mode(GraphControls::Mode mode)
     disconnect(ui->plot, &QCustomPlot::mouseRelease, this, &MarkupWindow::plot_edit_released);
 
     if (mode == GraphControls::Mode::Move) {
-        qInfo() << "MarkupWindow::set_mode Mode::Move";
         ui->plot->setInteraction(QCP::iRangeDrag, true);
 
-
     } else if (mode == GraphControls::Mode::Add) {
-        qInfo() << "MarkupWindow::set_mode Mode::Add";
         connect(ui->plot, &QCustomPlot::mousePress, this, &MarkupWindow::plot_add_pressed);
         connect(ui->plot, &QCustomPlot::mouseRelease, this, &MarkupWindow::plot_add_released);
 
     } else if (mode == GraphControls::Mode::Edit) {
-        qInfo() << "MarkupWindow::set_mode Mode::Edit";
         connect(ui->plot, &QCustomPlot::mousePress, this, &MarkupWindow::plot_edit_pressed);
         connect(ui->plot, &QCustomPlot::mouseRelease, this, &MarkupWindow::plot_edit_released);
     }
@@ -90,7 +84,6 @@ void MarkupWindow::file_selection_changed(const QModelIndex &index)
         return;
     }
     file_selected_idx = index.row();
-    qInfo() << "Selected file with index: " <<  file_selected_idx.value();
     load_audio_file(markup_data->dir, markup_data->sample_details[file_selected_idx.value()].filename);
     load_markups();
 }
@@ -233,7 +226,6 @@ void MarkupWindow::markup_item_selected(QCPAbstractItem *item, QMouseEvent *even
 {
     Q_UNUSED(item)
     Q_UNUSED(event)
-//    qInfo() << "markup_item_selected";
     if (!file_selected_idx.has_value()){
         return;
     }
@@ -243,17 +235,8 @@ void MarkupWindow::markup_item_selected(QCPAbstractItem *item, QMouseEvent *even
     }
 
     auto [key, model_idx, rect] = selected.value();
-//    qInfo() << "selected: " << key;
     auto idx = markups_model->index(model_idx);
     ui->listView_markups->setCurrentIndex(idx);
-}
-
-void MarkupWindow::plot_double_clicked(QMouseEvent *event)
-{
-    Q_UNUSED(event)
-//    auto x = ui->plot->xAxis->pixelToCoord(event->position().x());
-//    qInfo() << "Click X position: " << x;
-
 }
 
 void MarkupWindow::plot_add_pressed(QMouseEvent *event)
@@ -280,8 +263,6 @@ void MarkupWindow::plot_add_pressed(QMouseEvent *event)
         }
     }
 
-//    qInfo() << "!!!!! pressed";
-
     QCPItemStraightLine *start = new QCPItemStraightLine(ui->plot);
     start->point1->setCoords(x, 1);
     start->point2->setCoords(x, -1);
@@ -298,7 +279,6 @@ void MarkupWindow::plot_add_pressed(QMouseEvent *event)
 
 void MarkupWindow::plot_add_moved(QMouseEvent *event)
 {
-//    qInfo() << "moved";
     if (new_markup_data.has_value()) {
         auto x = ui->plot->xAxis->pixelToCoord(event->position().x());
         auto &data = new_markup_data.value();
@@ -310,7 +290,6 @@ void MarkupWindow::plot_add_moved(QMouseEvent *event)
 
 void MarkupWindow::plot_add_released(QMouseEvent *event)
 {
-//    qInfo() << "released";
     disconnect(ui->plot, &QCustomPlot::mouseMove, this, &MarkupWindow::plot_add_moved);
 
     if (new_markup_data.has_value() && file_selected_idx.has_value()) {
@@ -348,7 +327,6 @@ void MarkupWindow::plot_add_released(QMouseEvent *event)
 
 void MarkupWindow::plot_edit_pressed(QMouseEvent *event)
 {
-//    qInfo() << "plot_edit_pressed";
     if (event->button() == Qt::RightButton) {
         return;
     }
@@ -409,7 +387,6 @@ void MarkupWindow::plot_edit_pressed(QMouseEvent *event)
 
 void MarkupWindow::plot_edit_moved(QMouseEvent *event)
 {
-//    qInfo() << "plot_edit_moved";
     if (!file_selected_idx.has_value()) {
         return;
     }
@@ -481,7 +458,6 @@ void MarkupWindow::plot_edit_released(QMouseEvent *event)
 void MarkupWindow::on_listView_markups_clicked(const QModelIndex &index)
 {
     int markup_idx = index.row();
-    qInfo() << "markup_idx: " << markup_idx;
 
     auto selected = get_selected_markup();
     if (selected.has_value()) {
@@ -516,14 +492,6 @@ void MarkupWindow::on_listView_markups_clicked(const QModelIndex &index)
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
-void MarkupWindow::selection_changed_by_user()
-{
-//    qInfo() << "selectionChangedByUser";
-//    if (ui->plot->selectedItems().isEmpty()) {
-//        markup_selected_idx.reset();
-//    }
-}
-
 void MarkupWindow::on_pushButton_save_clicked()
 {
     if (!file_selected_idx.has_value()) {
@@ -546,7 +514,6 @@ void MarkupWindow::keyPressEvent(QKeyEvent *event)
         auto [markup_key, model_idx, markup] = selected.value();
         markup_data->sample_details[file_selected_idx.value()].markups.removeAt(model_idx);
         load_markups();
-        qInfo() << "Qt::Key_Delete pressed";
     }
 }
 

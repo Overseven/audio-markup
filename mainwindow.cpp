@@ -41,10 +41,13 @@ void MainWindow::open_dir()
     );
     settings->endGroup();
     if (dir_name.isEmpty()) {
-        qInfo() << "Empty";
+        QMessageBox::warning(this,
+            "Empty directory name",
+            QString("The dir \"") + dir_name + "\" is empty",
+            QMessageBox::Ok
+        );
         return;
     }
-    qInfo() << "Selected dir: " << dir_name;
 
     settings->beginGroup(Settings::MainWindow::group_name);
     settings->setValue(Settings::MainWindow::open_dir_default, dir_name);

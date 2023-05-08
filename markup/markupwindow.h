@@ -41,10 +41,7 @@ public:
 
 private slots:
     void on_listView_markups_clicked(const QModelIndex &index);
-    void selection_changed_by_user();
     void markup_item_selected(QCPAbstractItem *item, QMouseEvent *event);
-
-    void plot_double_clicked(QMouseEvent *event);
 
     void plot_add_pressed(QMouseEvent *event);
     void plot_add_moved(QMouseEvent *event);
