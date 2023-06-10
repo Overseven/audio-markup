@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
       markup_window(new MarkupWindow(this, markup_data))
 {
     ui->setupUi(this);
-    ui->gridLayoutMain->addWidget(markup_window);
+    ui->tab_view->layout()->addWidget(markup_window);
 
     QAction* action_open = ui->menuFile->addAction("Open dir..");
     action_open->setShortcuts(QKeySequence::Open);

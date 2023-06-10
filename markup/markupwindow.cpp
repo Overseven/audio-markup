@@ -459,14 +459,6 @@ void MarkupWindow::on_listView_markups_clicked(const QModelIndex &index)
 {
     int markup_idx = index.row();
 
-    auto selected = get_selected_markup();
-    if (selected.has_value()) {
-        auto [key, model_idx, rect] = selected.value();
-        if (model_idx == markup_idx){
-            return;
-        }
-    }
-
     int markup_key = markup_data->sample_details[file_selected_idx.value()].markups[markup_idx].key;
 
     if (!markups_map.contains(markup_key)) {

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "markup/markupwindow.h"
 #include "common/markup.h"
+#include "executor/executor.h"
 #include <QVector>
 #include <QSettings>
 
@@ -27,7 +28,7 @@ private:
     Ui::MainWindow *ui;
     Markup::MarkupData *markup_data;
     std::shared_ptr<QSettings> settings;
-
     MarkupWindow *markup_window;
+    Executor executor;
 };
 #endif // MAINWINDOW_H
