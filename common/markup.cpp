@@ -1,6 +1,5 @@
 #include "markup.h"
 
-
 Markup::MarkupData Markup::json::load_markup_file(QString directory, QString filename) {
     auto result = QVector<SampleDetails>();
     QFile file(directory + "/" + filename);

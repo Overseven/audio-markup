@@ -5,27 +5,29 @@ JsGlobalVariableProvider::JsGlobalVariableProvider()
 
 }
 
-void JsGlobalVariableProvider::set_sample_data(const QVector<double> &data)
+void JsGlobalVariableProvider::init_variables(QJSEngine &engine, QVector<double> &input_samples) const noexcept
 {
-    // TODO
-}
+    QJSValue input_samples_js_array = engine.newArray(input_samples.length());
+    for (int i = 0; i < input_samples.length(); i++) {
+        input_samples_js_array.setProperty(i, input_samples[i]);
+    }
 
-std::tuple<QString, QJSValue> JsGlobalVariableProvider::get_sys_variables_definition() const noexcept
-{
-    QString series = "var " + output_series + " = [];";
-    QString ranges = "var " + output_ranges + " = [];";
-    QString samples = "var " + input_samples + " = [];";
-    return series + "\n" + ranges + "\n" + samples + "\n";
+    QJSValue sys_obj = engine.newObject();
+    sys_obj.setProperty(input_samples_label, input_samples_js_array);
+    sys_obj.setProperty(output_series_label, engine.newArray());
+    sys_obj.setProperty(output_ranges_label, engine.newArray());
+    sys_obj.setProperty(output_values_label, engine.newArray());
+    engine.globalObject().setProperty(system_var_obj_label, sys_obj);
 }
 
 QVector<OutputSeries> JsGlobalVariableProvider::get_output_series(QJSEngine &engine) const noexcept
 {
-    auto js_value = engine.evaluate(output_series);
+    auto js_value = engine.evaluate(system_var_obj_label + "." + output_series_label);
     if (!js_value.isArray()) {
         return {};
     }
-    QVector<OutputSeries> result;
     auto length = js_value.property(QStringLiteral("length")).toInt();
+    QVector<OutputSeries> result(length);
     for (int i = 0; i < length; i++) {
         auto elem = js_value.property(i);
         if (!elem.hasProperty("label")) {
@@ -40,19 +42,19 @@ QVector<OutputSeries> JsGlobalVariableProvider::get_output_series(QJSEngine &eng
             auto x = js_series.property(j).toNumber();
             data[j] = x;
         }
-        result.append({label, data});
+        result[i] = {label, data};
     }
     return result;
 }
 
 QVector<OutputRanges> JsGlobalVariableProvider::get_output_ranges(QJSEngine &engine) const noexcept
 {
-    auto js_value = engine.evaluate(output_ranges);
+    auto js_value = engine.evaluate(system_var_obj_label + "." + output_ranges_label);
     if (!js_value.isArray()) {
         return {};
     }
-    QVector<OutputRanges> result;
     auto length = js_value.property(QStringLiteral("length")).toInt();
+    QVector<OutputRanges> result(length);
     for (int i = 0; i < length; i++) {
         auto elem = js_value.property(i);
         if (!elem.hasProperty("label")) {
@@ -69,7 +71,28 @@ QVector<OutputRanges> JsGlobalVariableProvider::get_output_ranges(QJSEngine &eng
             auto end_val = x.property("end").toInt();
             data[j] = {start_val, end_val};
         }
-        result.append({label, data});
+        result[i] = {label, data};
+    }
+    return result;
+}
+
+QVector<OutputValue> JsGlobalVariableProvider::get_output_values(QJSEngine &engine) const noexcept
+{
+    auto js_value = engine.evaluate(system_var_obj_label + "." + output_values_label);
+    if (!js_value.isArray()) {
+        return {};
+    }
+    auto length = js_value.property(QStringLiteral("length")).toInt();
+    QVector<OutputValue> result(length);
+    for (int i = 0; i < length; i++) {
+        auto elem = js_value.property(i);
+        if (!elem.hasProperty("label")) {
+            qDebug() << "get_output_values: value has no \"label\" field";
+            return {};
+        }
+        auto label = elem.property("label").toString();
+        auto val = elem.property("value").toVariant();
+        result[i] = {label, val};
     }
     return result;
 }

@@ -3,9 +3,9 @@
 
 #include <QWidget>
 #include <QFileSystemModel>
-#include "executor.h"
-#include "js_functions_provider.h"
-#include "i_js_case_provider.h"
+#include "../interfaces/i_js_samples_provider.h"
+#include "../interfaces/i_js_case_provider.h"
+#include "../processing/js_functions_provider.h"
 
 namespace Ui {
 class JsCaseWindow;
@@ -23,16 +23,21 @@ public:
     void load_case(const QString &file_path);
 
     virtual QString get_case_code();
-    ExecutionResult execute();
+    void execute();
+
+signals:
+    void process_samples_requested();
 
 private slots:
     void on_treeView_case_activated(const QModelIndex &index);
+    void on_pushButton_execute_and_save_clicked();
+    void on_pushButton_new_file_clicked();
+    void on_pushButton_save_case_file_clicked();
 
 private:
     Ui::JsCaseWindow *ui;
-    std::shared_ptr<JsFunctionsProvider> func_provider;
-    std::shared_ptr<Executor> executor;
     QFileSystemModel *case_model;
+    QString dir_path;
 };
 
 #endif // JS_CASE_WINDOW_H

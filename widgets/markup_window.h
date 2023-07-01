@@ -1,19 +1,20 @@
-#ifndef MARKUPWINDOW_H
-#define MARKUPWINDOW_H
+#ifndef MARKUP_WINDOW_H
+#define MARKUP_WINDOW_H
 
 #include <QWidget>
 #include <QStringListModel>
 #include <QVector>
 #include "common/markup.h"
-#include "common/AudioFile.h"
+#include "common/audio_file.h"
 #include "qcustomplot/qcustomplot.h"
-#include "graphcontrols.h"
+#include "graph_controls.h"
+#include "../interfaces/i_js_samples_provider.h"
 
 namespace Ui {
-class MarkupWindow;
+    class MarkupWindow;
 }
 
-class MarkupWindow : public QWidget
+class MarkupWindow : public QWidget, public IJsSamplesProvider
 {
     Q_OBJECT
 
@@ -38,6 +39,10 @@ public:
     void sample_details_updated();
     void load_audio_file(QString &directory, QString &filename);
     void set_mode(GraphControls::Mode mode);
+
+    std::optional<int> get_selected_file_index() const noexcept;
+    virtual QVector<double> get_selected_file_samples() override;
+    virtual QVector<QVector<double>> get_all_files_samples() override;
 
 private slots:
     void on_listView_markups_clicked(const QModelIndex &index);
@@ -78,6 +83,7 @@ private:
     QStringListModel *markups_model;
     Markup::MarkupData *markup_data;
     AudioFile<double> audio_file;
+
     // key -> [ model_idx, rect ]
     QMap<int, std::tuple<int, QCPItemRect*>> markups_map;
     std::optional<QVector<double>> samples_abs;
@@ -86,4 +92,4 @@ private:
     std::optional<EditMarkupData> edit_markup_data;
 };
 
-#endif // MARKUPWINDOW_H
+#endif // MARKUP_WINDOW_H

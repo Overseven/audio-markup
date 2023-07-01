@@ -1,5 +1,5 @@
-#include "graphcontrols.h"
-#include "ui_graphcontrols.h"
+#include "graph_controls.h"
+#include "ui_graph_controls.h"
 
 GraphControls::GraphControls(QWidget *parent) :
     QWidget(parent),

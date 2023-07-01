@@ -3,12 +3,12 @@
 
 JsFunctionsProvider::JsFunctionsProvider()
 {
-
+    load_from_files();
 }
 
 int JsFunctionsProvider::load_from_files()
 {
-    const QString base_dir_name = QDir::currentPath() + "/js/functions";
+    const QString base_dir_name = QDir::currentPath() + "/../js/functions";
     function_map = QMap<QString, JsFunction>();
     load_dir(base_dir_name);
     return function_map.count();

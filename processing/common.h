@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector>
 #include <QJSValue>
+#include <QVariant>
 
 struct JsFunction {
     QString name;
@@ -26,10 +27,16 @@ struct OutputRanges {
     QVector<Range> ranges;
 };
 
+struct OutputValue {
+    QString name;
+    QVariant value;
+};
+
 struct ExecutionResult {
     QJSValue output;
     QVector<OutputSeries> series;
     QVector<OutputRanges> ranges;
+    QVector<OutputValue> values;
 };
 
 #endif // EXECUTOR_COMMON_H

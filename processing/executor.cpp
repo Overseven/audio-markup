@@ -1,16 +1,16 @@
 #include "executor.h"
 #include <QDebug>
 #include <QDir>
-#include "i_js_case_provider.h"
+#include "../interfaces/i_js_case_provider.h"
 #include "js_global_variable_provider.h"
 
 Executor::Executor(){}
 
-ExecutionResult Executor::execute(IJsCaseProvider* case_provider, JsFunctionsProvider* functions_provider)
+ExecutionResult Executor::execute(QVector<double> &input_samples, IJsCaseProvider* case_provider, JsFunctionsProvider* functions_provider)
 {
     QJSEngine engine;
     JsGlobalVariableProvider global_var_provider;
-    QString sys_variables = global_var_provider.get_sys_variables_definition();
+    global_var_provider.init_variables(engine, input_samples);
     QString functions = functions_provider->get_all_functions();
     QString case_code = case_provider->get_case_code();
 
@@ -18,12 +18,14 @@ ExecutionResult Executor::execute(IJsCaseProvider* case_provider, JsFunctionsPro
         qDebug() << "case code is empty, nothing to execute";
         return {};
     }
-    QString final_code = sys_variables + functions + "\n" + case_code;
+    QString final_code = functions + "\n" + case_code;
     auto output = engine.evaluate(final_code);
     auto series = global_var_provider.get_output_series(engine);
     auto ranges = global_var_provider.get_output_ranges(engine);
+    auto values = global_var_provider.get_output_values(engine);
 
     qDebug() << "Output: " << output.toString();
+
     qDebug() << "Series (" << series.length() << "):";
     for (const auto& s : series) {
         qDebug() << "  Series name:" << s.name;
@@ -37,7 +39,12 @@ ExecutionResult Executor::execute(IJsCaseProvider* case_provider, JsFunctionsPro
         }
         qDebug() << "";
     }
-    return { output, series, ranges };
+
+    qDebug() << "Values (" << values.length() << "):";
+    for (const auto& v : values) {
+        qDebug() << "  Name:" << v.name << " value: " << v.value;
+    }
+    return { output, series, ranges, values };
 }
 
 

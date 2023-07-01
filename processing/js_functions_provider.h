@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include "common.h"
+#include "../interfaces/i_js_samples_provider.h"
 
 class JsFunctionsProvider
 {
@@ -18,6 +19,8 @@ private:
     QString parse_function_name(QString filename, QString code);
 
     QMap<QString, JsFunction> function_map;
+
+    IJsSamplesProvider *samples_provider;
 };
 
 #endif // JS_FUNCTIONS_PROVIDER_H

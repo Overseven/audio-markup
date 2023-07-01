@@ -1,5 +1,5 @@
-#ifndef GRAPHCONTROLS_H
-#define GRAPHCONTROLS_H
+#ifndef GRAPH_CONTROLS_H
+#define GRAPH_CONTROLS_H
 
 #include <QWidget>
 
@@ -40,4 +40,4 @@ private:
     Ui::GraphControls *ui;
 };
 
-#endif // GRAPHCONTROLS_H
+#endif // GRAPH_CONTROLS_H

@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "markup/markupwindow.h"
+#include "widgets/markup_window.h"
+#include "widgets/js_case_window.h"
+#include "widgets/result_window.h"
 #include "common/markup.h"
-#include "executor/executor.h"
+#include "processing/js_functions_provider.h"
 #include <QVector>
 #include <QSettings>
 
@@ -24,11 +26,17 @@ private:
     void open_dir();
     void load_samples_info();
 
+private slots:
+    void process_samples();
+
 private:
     Ui::MainWindow *ui;
     Markup::MarkupData *markup_data;
     std::shared_ptr<QSettings> settings;
+    std::shared_ptr<JsFunctionsProvider> functions_provider;
     MarkupWindow *markup_window;
-    Executor executor;
+    JsCaseWindow *case_window;
+    ResultWindow *result_window;
 };
+
 #endif // MAINWINDOW_H

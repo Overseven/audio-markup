@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "common/settings.h"
 #include "common/markup.h"
+#include "processing/executor.h"
 
 #define SETTINGS_FILE_NAME "settings.ini"
 
@@ -13,16 +14,23 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       markup_data(new Markup::MarkupData()),
       settings(new QSettings(SETTINGS_FILE_NAME, QSettings::Format::IniFormat)),
-      markup_window(new MarkupWindow(this, markup_data))
+      functions_provider(std::make_shared<JsFunctionsProvider>()),
+      markup_window(new MarkupWindow(this, markup_data)),
+      case_window(new JsCaseWindow(this)),
+      result_window(new ResultWindow(this))
 {
     ui->setupUi(this);
-    ui->tab_view->layout()->addWidget(markup_window);
+    ui->tab_markup->layout()->addWidget(markup_window);
+    ui->tab_processing->layout()->addWidget(case_window);
+    ui->tab_result->layout()->addWidget(result_window);
 
     QAction* action_open = ui->menuFile->addAction("Open dir..");
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setStatusTip(tr("Open an existing dir "));
     connect(action_open, &QAction::triggered, this, &MainWindow::open_dir);
     load_samples_info();
+
+    connect(case_window, &JsCaseWindow::process_samples_requested, this, &MainWindow::process_samples);
 }
 
 MainWindow::~MainWindow()
@@ -102,4 +110,21 @@ void MainWindow::load_samples_info()
     }
 
     markup_window->sample_details_updated();
+}
+
+void MainWindow::process_samples()
+{
+    qDebug() << Q_FUNC_INFO;
+    auto func_provider = JsFunctionsProvider();
+    auto executor = Executor();
+
+    auto file_idx = markup_window->get_selected_file_index();
+    if (!file_idx.has_value()) {
+        qDebug() << "File not selected";
+        return;
+    }
+    auto samples = markup_window->get_selected_file_samples();
+    auto &sample_details = markup_data->sample_details[file_idx.value()];
+    auto result = executor.execute(samples, case_window, &func_provider);
+    result_window->draw_results(samples, sample_details, result);
 }

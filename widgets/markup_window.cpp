@@ -1,5 +1,5 @@
-#include "markupwindow.h"
-#include "ui_markupwindow.h"
+#include "markup_window.h"
+#include "ui_markup_window.h"
 #include <QMessageBox>
 
 typedef int Key;
@@ -33,7 +33,7 @@ void MarkupWindow::sample_details_updated()
     files_model->removeRows(0, files_model->rowCount());
     audio_file = AudioFile<double>();
     QStringList list;
-    for (auto const &elem : markup_data->sample_details){
+    for (auto const &elem : markup_data->sample_details) {
         list << elem.filename;
     }
     files_model->setStringList(list);
@@ -78,6 +78,39 @@ void MarkupWindow::set_mode(GraphControls::Mode mode)
     }
 }
 
+std::optional<int> MarkupWindow::get_selected_file_index() const noexcept
+{
+    return file_selected_idx;
+}
+
+QVector<double> MarkupWindow::get_selected_file_samples()
+{
+    if (audio_file.getNumChannels() == 0) {
+        return {};
+    }
+    return audio_file.samples[0];
+}
+
+QVector<QVector<double>> MarkupWindow::get_all_files_samples()
+{
+    QVector<QVector<double>> result(markup_data->sample_details.length());
+    for (const auto& details : markup_data->sample_details) {
+        QString file = markup_data->dir + "/" + details.filename;
+        auto audio_file = AudioFile<double>();
+        bool is_loaded = audio_file.load(file.toStdString());
+        if (!is_loaded || audio_file.getNumChannels() == 0) {
+            QMessageBox::warning(this,
+                "Can't open audio file",
+                QString("Can't open audio file: ") + file,
+                QMessageBox::Ok
+            );
+            return {};
+        }
+        result.append(audio_file.samples[0]);
+    }
+    return result;
+}
+
 void MarkupWindow::file_selection_changed(const QModelIndex &index)
 {
     if (file_selected_idx == index.row()) {
@@ -114,7 +147,8 @@ std::optional<std::tuple<Key, ModelIdx, QCPItemRect *>> MarkupWindow::get_select
         return {};
     }
 
-    for (int markup_key : markups_map.keys()) {
+    for (auto it = markups_map.begin(); it != markups_map.end(); it++) {
+        auto [markup_key, _] = *it;
         auto [model_idx, markup] = markups_map[markup_key];
         if (markup == selected_items.first()) {
             return {{ markup_key,  model_idx, (QCPItemRect*)selected_items.first() }};
@@ -397,7 +431,7 @@ void MarkupWindow::plot_edit_moved(QMouseEvent *event)
 
     auto x = ui->plot->xAxis->pixelToCoord(event->position().x());
     auto &edit_markup = edit_markup_data.value();
-    auto markup = get_markup_with_key(edit_markup.markup_key); // markup_data->sample_details[file_selected_idx.value()].markups[edit_markup.markup_id];
+    auto markup = get_markup_with_key(edit_markup.markup_key);
 
     if (edit_markup.is_left_edit) {
         if (x > edit_markup.rect->bottomRight->key()) {
@@ -575,4 +609,3 @@ void MarkupWindow::on_pushButton_view_mode_set_clicked()
 
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
-
