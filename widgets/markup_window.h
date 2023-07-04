@@ -8,13 +8,15 @@
 #include "common/audio_file.h"
 #include "qcustomplot/qcustomplot.h"
 #include "graph_controls.h"
-#include "../interfaces/i_js_samples_provider.h"
+#include "../interfaces/i_samples_provider.h"
+#include "../interfaces/i_markup_provider.h"
+#include "../processing/markup_list_model.h"
 
 namespace Ui {
     class MarkupWindow;
 }
 
-class MarkupWindow : public QWidget, public IJsSamplesProvider
+class MarkupWindow : public QWidget
 {
     Q_OBJECT
 
@@ -33,18 +35,20 @@ class MarkupWindow : public QWidget, public IJsSamplesProvider
     };
 
 public:
-    explicit MarkupWindow(QWidget *parent, Markup::MarkupData *_markup_data);
+    explicit MarkupWindow(
+        QWidget *parent,
+        std::shared_ptr<ISamplesProvider> _samples_provider,
+        std::shared_ptr<IMarkupProvider> _markup_provider);
+
     ~MarkupWindow();
 
-    void sample_details_updated();
-    void load_audio_file(QString &directory, QString &filename);
     void set_mode(GraphControls::Mode mode);
 
-    std::optional<int> get_selected_file_index() const noexcept;
-    virtual QVector<double> get_selected_file_samples() override;
-    virtual QVector<QVector<double>> get_all_files_samples() override;
-
 private slots:
+    void samples_list_changed();
+    void file_selection_changed();
+    void markups_changed(SampleKey sample_key);
+
     void on_listView_markups_clicked(const QModelIndex &index);
     void markup_item_selected(QCPAbstractItem *item, QMouseEvent *event);
 
@@ -60,34 +64,33 @@ private slots:
     void keyPressEvent(QKeyEvent *event) override;
     void on_pushButton_view_mode_set_clicked();
 
+    void on_listView_audio_files_clicked(const QModelIndex &index);
+
 private:
-    void file_selection_changed(const QModelIndex &index);
+    bool is_intersected(const Markup::SampleDetails &sample_details, double left, double right, int markup_key) const noexcept;
+    bool is_intersected_any(const Markup::SampleDetails &sample_details, double left, double right) const noexcept;
 
-    bool is_intersected(double left, double right, int markup_id = -1);
-
-    std::optional<std::tuple<int, int, QCPItemRect*>>
+    std::optional<std::tuple<MarkupKey, QCPItemRect*>>
         get_selected_markup();
 
     void load_markups();
     void draw_audio();
-    int get_max_key();
-    Markup::Markup* get_markup_with_key(int key);
+    int get_max_key(const Markup::SampleDetails &sample_details);
 
     void update_samples_abs();
     void update_samples_mean(int window_len);
 
 private:
     Ui::MarkupWindow *ui;
-    std::optional<int> file_selected_idx;
-    QStringListModel *files_model;
-    QStringListModel *markups_model;
-    Markup::MarkupData *markup_data;
-    AudioFile<double> audio_file;
+    QStringListModel *samples_model;
+    MarkupListModel *markups_model;
 
-    // key -> [ model_idx, rect ]
-    QMap<int, std::tuple<int, QCPItemRect*>> markups_map;
+    std::shared_ptr<ISamplesProvider> samples_provider;
+    std::shared_ptr<IMarkupProvider> markup_provider;
+
     std::optional<QVector<double>> samples_abs;
     std::optional<std::tuple<QVector<double>, int>> samples_mean;
+
     std::optional<NewMarkupData> new_markup_data;
     std::optional<EditMarkupData> edit_markup_data;
 };

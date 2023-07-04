@@ -1,7 +1,7 @@
 #include "markup.h"
 
 Markup::MarkupData Markup::json::load_markup_file(QString directory, QString filename) {
-    auto result = QVector<SampleDetails>();
+    auto result = QMap<QString, SampleDetails>();
     QFile file(directory + "/" + filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         throw std::invalid_argument("Can't open markup file");
@@ -42,16 +42,16 @@ Markup::MarkupData Markup::json::load_markup_file(QString directory, QString fil
             if (!section.contains(label_comment) || !section[label_comment].isString()) {
                 throw std::invalid_argument("Can't parse markup file (comment label)");
             }
-            sample_detail.markups
-                .push_back({
-                    static_cast<int>(section[label_key].toDouble()),
+            auto key = section[label_key].toInt();
+            sample_detail.markups[key] = {
+                    key,
                     range[0].toInt(),
                     range[1].toInt(),
                     section[label_comment].toString()
-                });
+                };
         }
 
-        result.push_back(sample_detail);
+        result[sample_detail.filename] = sample_detail;
     }
     return {directory, result};
 }
@@ -59,7 +59,7 @@ Markup::MarkupData Markup::json::load_markup_file(QString directory, QString fil
 void Markup::json::save_markup_file(QString filename, MarkupData &markup_data) {
     auto markups_vec = QJsonArray();
 
-    for (const auto &sample_detail : markup_data.sample_details) {
+    for (const auto &sample_detail : markup_data.sample_details.values()) {
         auto sections = QJsonArray();
 
         for (const auto &markup : sample_detail.markups) {

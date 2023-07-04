@@ -2,13 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QVector>
+#include <QSettings>
 #include "widgets/markup_window.h"
 #include "widgets/js_case_window.h"
 #include "widgets/result_window.h"
-#include "common/markup.h"
 #include "processing/js_functions_provider.h"
-#include <QVector>
-#include <QSettings>
+#include "processing/dir_provider.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,7 +31,10 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Markup::MarkupData *markup_data;
+    std::shared_ptr<Markup::MarkupData> markup_data;
+    std::shared_ptr<DirProvider> dir_provider;
+    std::shared_ptr<ISamplesProvider> samples_provider;
+    std::shared_ptr<IMarkupProvider> markup_provider;
     std::shared_ptr<QSettings> settings;
     std::shared_ptr<JsFunctionsProvider> functions_provider;
     MarkupWindow *markup_window;

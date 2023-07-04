@@ -6,11 +6,12 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QException>
+#include "types.h"
 
 namespace Markup {
 
 struct Markup {
-    int key;
+    MarkupKey key;
     int left;
     int right;
     QString comment;
@@ -18,12 +19,12 @@ struct Markup {
 
 struct SampleDetails {
     QString filename;
-    QVector<Markup> markups;
+    QMap<MarkupKey, Markup> markups;
 };
 
 struct MarkupData {
     QString dir;
-    QVector<SampleDetails> sample_details;
+    QMap<QString, SampleDetails> sample_details;
 };
 
 

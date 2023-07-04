@@ -3,7 +3,7 @@
 
 #include <QMap>
 #include "common.h"
-#include "../interfaces/i_js_samples_provider.h"
+#include "../interfaces/i_samples_provider.h"
 
 class JsFunctionsProvider
 {
@@ -20,7 +20,7 @@ private:
 
     QMap<QString, JsFunction> function_map;
 
-    IJsSamplesProvider *samples_provider;
+    ISamplesProvider *samples_provider;
 };
 
 #endif // JS_FUNCTIONS_PROVIDER_H

@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QFileSystemModel>
-#include "../interfaces/i_js_samples_provider.h"
+#include "../interfaces/i_samples_provider.h"
 #include "../interfaces/i_js_case_provider.h"
 #include "../processing/js_functions_provider.h"
 
