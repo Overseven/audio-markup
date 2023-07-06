@@ -11,6 +11,7 @@
 #include "../interfaces/i_samples_provider.h"
 #include "../interfaces/i_markup_provider.h"
 #include "../processing/markup_list_model.h"
+#include "../helpers/markup_draw_helper.h"
 
 namespace Ui {
     class MarkupWindow;
@@ -45,7 +46,6 @@ public:
     void set_mode(GraphControls::Mode mode);
 
 private slots:
-    void samples_list_changed();
     void file_selection_changed();
     void markups_changed(SampleKey sample_key);
 
@@ -64,10 +64,8 @@ private slots:
     void keyPressEvent(QKeyEvent *event) override;
     void on_pushButton_view_mode_set_clicked();
 
-    void on_listView_audio_files_clicked(const QModelIndex &index);
-
 private:
-    bool is_intersected(const Markup::SampleDetails &sample_details, double left, double right, int markup_key) const noexcept;
+    bool is_intersected_except(const Markup::SampleDetails &sample_details, double left, double right, MarkupKey markup_key) const noexcept;
     bool is_intersected_any(const Markup::SampleDetails &sample_details, double left, double right) const noexcept;
 
     std::optional<std::tuple<MarkupKey, QCPItemRect*>>
@@ -82,7 +80,6 @@ private:
 
 private:
     Ui::MarkupWindow *ui;
-    QStringListModel *samples_model;
     MarkupListModel *markups_model;
 
     std::shared_ptr<ISamplesProvider> samples_provider;
@@ -93,6 +90,8 @@ private:
 
     std::optional<NewMarkupData> new_markup_data;
     std::optional<EditMarkupData> edit_markup_data;
+
+    std::unique_ptr<MarkupDrawHelper> markup_draw_helper;
 };
 
 #endif // MARKUP_WINDOW_H

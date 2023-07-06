@@ -13,15 +13,16 @@ MarkupWindow::MarkupWindow(
     markup_provider(_markup_provider)
 {
     ui->setupUi(this);
-    samples_model = new QStringListModel(this);
+    markup_draw_helper = std::make_unique<MarkupDrawHelper>(ui->plot);
+
     markups_model = new MarkupListModel(this);
 
-    ui->listView_audio_files->setModel(samples_model);
     ui->listView_markups->setModel(markups_model);
+    ui->sample_file_selector->set_sample_provider(samples_provider);
 
-    samples_provider->connect_to_signal_samples_list_changed(this, SLOT(samples_list_changed()), true);
     samples_provider->connect_to_signal_selection_changed(this, SLOT(file_selection_changed()), true);
     markup_provider->connect_to_signal_markups_changed(this, SLOT(markups_changed(SampleKey)), true);
+
     connect(ui->controls, &GraphControls::mode_updated, this, &MarkupWindow::set_mode);
     connect(ui->plot, &QCustomPlot::itemClick, this, &MarkupWindow::markup_item_selected);
 }
@@ -55,13 +56,6 @@ void MarkupWindow::set_mode(GraphControls::Mode mode)
     }
 }
 
-void MarkupWindow::samples_list_changed()
-{
-    samples_model->removeRows(0, samples_model->rowCount());
-    auto sample_files = samples_provider->get_files_list();
-    samples_model->setStringList(sample_files);
-}
-
 void MarkupWindow::file_selection_changed()
 {
     draw_audio();
@@ -71,26 +65,37 @@ void MarkupWindow::file_selection_changed()
 
 void MarkupWindow::markups_changed(SampleKey sample_key)
 {
+    qDebug() << Q_FUNC_INFO;
     Q_UNUSED(sample_key)
     load_markups();
 }
 
-bool MarkupWindow::is_intersected(const Markup::SampleDetails &sample_details, double left, double right, int markup_key)  const noexcept
+bool MarkupWindow::is_intersected_except(const Markup::SampleDetails &sample_details, double left, double right, MarkupKey except_markup_key)  const noexcept
 {
-    if (!sample_details.markups.contains(markup_key)) {
-        return false;
+    for (const auto &m : sample_details.markups) {
+        if (m.key == except_markup_key){
+            continue;
+        }
+        if (
+                ((left >= m.left && left  <= m.right)
+             || (right >= m.left && right <= m.right)
+             || (left  <= m.left && right >= m.right))
+            ){
+                return true;
+        }
     }
-    auto m = sample_details.markups[markup_key];
-    return ((left >= m.left && left <= m.right)
-        || (right >= m.left && right <= m.right)
-        || (left <= m.left && right >= m.right));
+    return false;
 }
 
 bool MarkupWindow::is_intersected_any(const Markup::SampleDetails &sample_details, double left, double right) const noexcept
 {
     for (const auto &m : sample_details.markups) {
-        if (is_intersected(sample_details, left, right, m.key)){
-            return true;
+        if (
+                ((left >= m.left && left  <= m.right)
+             || (right >= m.left && right <= m.right)
+             || (left  <= m.left && right >= m.right))
+            ){
+                return true;
         }
     }
     return false;
@@ -368,13 +373,9 @@ void MarkupWindow::plot_edit_pressed(QMouseEvent *event)
 
     if (is_left_edit){
         rect->topLeft->setCoords(x, 1.0);
-        markup.left = x;
     } else {
         rect->bottomRight->setCoords(x, -1.0);
-        markup.right = x;
     }
-
-    markup_provider->set_markup(selected_file_key, markup);
 
     edit_markup_data = EditMarkupData{
         markup_key,
@@ -430,10 +431,6 @@ void MarkupWindow::plot_edit_moved(QMouseEvent *event)
             edit_markup.rect->bottomRight->setCoords(x, -1.0);
         }
     }
-
-    markup.left = edit_markup.rect->topLeft->key();
-    markup.right = edit_markup.rect->bottomRight->key();
-    markup_provider->set_markup(selected_file_key, markup);
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
@@ -459,24 +456,22 @@ void MarkupWindow::plot_edit_released(QMouseEvent *event)
 
     auto &edit_markup = edit_markup_data.value();
 
-    if (is_intersected(
+    if (!is_intersected_except(
             sample_details,
             edit_markup.rect->topLeft->key(),
             edit_markup.rect->bottomRight->key(),
             edit_markup.markup_key)
     ){
-        edit_markup.rect->topLeft->setCoords(edit_markup.before_edit_left, 1);
-        edit_markup.rect->bottomRight->setCoords(edit_markup.before_edit_right, -1);
         auto markup = sample_details.markups[edit_markup.markup_key];
-        markup.left = edit_markup.before_edit_left;
-        markup.right = edit_markup.before_edit_right;
+        markup.left = edit_markup.rect->topLeft->key();
+        markup.right = edit_markup.rect->bottomRight->key();
         edit_markup_data.reset();
-        ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+        markup_provider->set_markup(selected_file_key, markup);
         return;
     }
 
     edit_markup_data.reset();
-    ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+    load_markups();
 }
 
 void MarkupWindow::on_listView_markups_clicked(const QModelIndex &index)
@@ -605,12 +600,5 @@ void MarkupWindow::on_pushButton_view_mode_set_clicked()
     }
 
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
-}
-
-void MarkupWindow::on_listView_audio_files_clicked(const QModelIndex &index)
-{
-    auto sample_key = samples_model->data(index).toString();
-    qDebug() << Q_FUNC_INFO << "index:" << index.row() << "sample_key:" << sample_key;
-    samples_provider->select_sample(sample_key);
 }
 
