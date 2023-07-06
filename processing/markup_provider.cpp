@@ -29,6 +29,7 @@ void MarkupProvider::load()
     markupFileList = dir.entryList();
 
     markup_data = Markup::json::load_markup_file(dir_name, markupFileList.first());
+    emit markups_changed(markupFileList.first());
 }
 
 void MarkupProvider::save()
