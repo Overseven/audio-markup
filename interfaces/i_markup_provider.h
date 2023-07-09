@@ -5,8 +5,7 @@
 #include <QModelIndex>
 #include "../common/markup.h"
 
-class IMarkupProvider {
-public:
+struct IMarkupProvider {
     virtual ~IMarkupProvider() {};
 
     virtual void load() = 0;

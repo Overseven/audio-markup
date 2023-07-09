@@ -30,7 +30,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_markup">
        <attribute name="title">
@@ -51,9 +51,9 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_processing">
+      <widget class="QWidget" name="tab_scripts">
        <attribute name="title">
-        <string>Processing</string>
+        <string>Scripts editor</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
         <property name="leftMargin">

@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 #include <QJSEngine>
-#include "common.h"
+#include "../processing/common.h"
 
 class JsGlobalVariableProvider
 {

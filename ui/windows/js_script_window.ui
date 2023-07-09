@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>JsCaseWindow</class>
- <widget class="QWidget" name="JsCaseWindow">
+ <class>JsScriptWindow</class>
+ <widget class="QWidget" name="JsScriptWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,35 +31,15 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <item row="0" column="1" rowspan="5">
-      <widget class="QTreeView" name="treeView_case">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="4" column="1">
+      <widget class="QPushButton" name="pushButton_new_file">
+       <property name="text">
+        <string>New file</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
-      <widget class="QPushButton" name="pushButton_execute_and_save">
-       <property name="text">
-        <string>Execute and save</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_case_code">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Case code:</string>
-       </property>
-      </widget>
+     <item row="1" column="0">
+      <widget class="QLineEdit" name="lineEdit_filename"/>
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label_filename">
@@ -74,15 +54,35 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QPushButton" name="pushButton_new_file">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_script_code">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
        <property name="text">
-        <string>New file</string>
+        <string>Script code:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0" rowspan="5">
-      <widget class="QTextBrowser" name="textBrowser_case_code">
+     <item row="5" column="1">
+      <widget class="QPushButton" name="pushButton_save_script_file">
+       <property name="text">
+        <string>Save file</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QPushButton" name="pushButton_execute_and_save">
+       <property name="text">
+        <string>Execute and save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" rowspan="4">
+      <widget class="QTextBrowser" name="textBrowser_script_code">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>2</horstretch>
@@ -94,20 +94,21 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLineEdit" name="lineEdit_filename"/>
-     </item>
-     <item row="6" column="1">
-      <widget class="QPushButton" name="pushButton_save_case_file">
-       <property name="text">
-        <string>Save file</string>
-       </property>
-      </widget>
+     <item row="0" column="1" rowspan="4">
+      <widget class="JsScriptSelector" name="js_script_selector" native="true"/>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>JsScriptSelector</class>
+   <extends>QWidget</extends>
+   <header location="global">ui/widgets/js_script_selector.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

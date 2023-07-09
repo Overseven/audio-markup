@@ -14,17 +14,19 @@ MarkupWindow::MarkupWindow(
 {
     ui->setupUi(this);
     markup_draw_helper = std::make_unique<MarkupDrawHelper>(ui->plot);
+    audio_view_cache = std::make_unique<AudioViewCache>();
 
     markups_model = new MarkupListModel(this);
 
     ui->listView_markups->setModel(markups_model);
-    ui->sample_file_selector->set_sample_provider(samples_provider);
+    ui->audio_file_selector->set_sample_provider(samples_provider);
 
-    samples_provider->connect_to_signal_selection_changed(this, SLOT(file_selection_changed()), true);
+    samples_provider->connect_to_signal_selection_changed(this, SLOT(audio_file_selection_changed()), true);
     markup_provider->connect_to_signal_markups_changed(this, SLOT(markups_changed(SampleKey)), true);
 
     connect(ui->controls, &GraphControls::mode_updated, this, &MarkupWindow::set_mode);
     connect(ui->plot, &QCustomPlot::itemClick, this, &MarkupWindow::markup_item_selected);
+    connect(ui->audio_view_mode_selector, &AudioViewModeSelector::view_mode_changed, this, &MarkupWindow::update_audio_view_mode);
 }
 
 MarkupWindow::~MarkupWindow()
@@ -56,7 +58,7 @@ void MarkupWindow::set_mode(GraphControls::Mode mode)
     }
 }
 
-void MarkupWindow::file_selection_changed()
+void MarkupWindow::audio_file_selection_changed()
 {
     draw_audio();
     set_mode(ui->controls->get_current_mode());
@@ -150,16 +152,18 @@ void MarkupWindow::draw_audio()
     if (!file_selected_key.has_value()){
         return;
     }
-    if (samples_provider->get_selected_file_samples().isEmpty()) {
+    auto samples = samples_provider->get_selected_file_samples();
+    if (samples.isEmpty()) {
         return;
     }
     ui->plot->clearGraphs();
     ui->plot->clearItems();
 
     auto graph = ui->plot->addGraph();
-    samples_abs.reset();
-    samples_mean.reset();
-    on_pushButton_view_mode_set_clicked();
+    audio_view_cache->set_audio_raw(samples);
+
+    auto [mode, mean_window] = ui->audio_view_mode_selector->get_mode();
+    update_audio_view_mode(mode, mean_window);
 
     ui->plot->xAxis->setLabel("Sample index");
     ui->plot->yAxis->setLabel("y");
@@ -177,32 +181,6 @@ int MarkupWindow::get_max_key(const Markup::SampleDetails &sample_details)
         }
     }
     return max_key;
-}
-
-void MarkupWindow::update_samples_abs()
-{
-    auto samples = samples_provider->get_selected_file_samples();
-    for (auto i = 0; i < samples.length(); i++) {
-        samples[i] = abs(samples[i]);
-    }
-    samples_abs = samples;
-}
-
-void MarkupWindow::update_samples_mean(int window_len)
-{
-    auto vec = samples_abs.value();
-    for (auto i = 0; i < window_len/2 - 1; i++) {
-        vec[i] = 0;
-        vec[vec.length() - i - 1] = 0;
-    }
-    for (auto i = window_len/2; i < vec.length() - window_len/2; i++) {
-        double sum = 0;
-        for (auto j = i - window_len/2; j < i + window_len/2; j++) {
-            sum += vec[j];
-        }
-        vec[i] = sum / window_len;
-    }
-    samples_mean = std::tuple<QVector<double>, int>(vec, window_len);
 }
 
 void MarkupWindow::markup_item_selected(QCPAbstractItem *item, QMouseEvent *event)
@@ -534,71 +512,36 @@ void MarkupWindow::keyPressEvent(QKeyEvent *event)
 }
 
 
-void MarkupWindow::on_pushButton_view_mode_set_clicked()
+void MarkupWindow::update_audio_view_mode(AudioViewMode mode, std::optional<int> mean_window)
 {
     auto file_selected_key = samples_provider->get_selected_file_key();
     if (!file_selected_key.has_value()){
         return;
     }
 
-    auto samples = samples_provider->get_selected_file_samples();
-    QVector<double> x(samples.count());
+    auto audio_raw = audio_view_cache->get_raw();
+    if (audio_raw.isEmpty()) {
+        return;
+    }
+    QVector<double> x(audio_raw.count());
     for (int i = 0; i < x.length(); i++) {
         x[i] = i;
     }
 
-    if (ui->radioButton_view_mode_raw->isChecked()) {
-        ui->plot->graph()->setData(x, samples);
+    if (mode == AudioViewMode::Raw) {
+        ui->plot->graph()->setData(x, audio_raw);
 
-    } else if (ui->radioButton_view_mode_abs->isChecked()) {
-        if (!samples_abs.has_value()) {
-            update_samples_abs();
-        }
-        ui->plot->graph()->setData(x, samples_abs.value());
+    } else if (mode == AudioViewMode::Abs) {
+        auto audio_abs = audio_view_cache->get_abs();
+        ui->plot->graph()->setData(x, audio_abs);
 
-    } else if (ui->radioButton_view_mode_mean->isChecked()) {
-        bool ok = true;
-        int window_len = ui->lineEdit_mean_window->text().toInt(&ok);
-        if (!ok) {
-            QMessageBox::warning(this,
-                "Window len error",
-                "Window len can't parsed",
-                QMessageBox::Ok
-            );
-            return;
-        }
-        if (window_len < 3) {
-            QMessageBox::warning(this,
-                "Window len error",
-                "Window len must be >= 3",
-                QMessageBox::Ok
-            );
-            return;
-        }
-        if (window_len % 2 == 0) {
-            QMessageBox::warning(this,
-                "Window len error",
-                "Window len must be odd",
-                QMessageBox::Ok
-            );
-            return;
-        }
-
-        if (!samples_abs.has_value()) {
-            update_samples_abs();
-        }
-        if (!samples_mean.has_value()) {
-            update_samples_mean(window_len);
-        } else {
-            auto [vec, window] = samples_mean.value();
-            if (window != window_len) {
-                update_samples_mean(window_len);
-            }
-        }
-        auto [meaned, _] = samples_mean.value();
-        ui->plot->graph()->setData(x, meaned);
+    } else if (mode == AudioViewMode::Mean && mean_window.has_value()) {
+        int window_len = mean_window.value();
+        auto audio_mean = audio_view_cache->get_mean(window_len);
+        ui->plot->graph()->setData(x, audio_mean);
     }
 
+    ui->plot->yAxis->rescale();
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 

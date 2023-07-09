@@ -1,14 +1,14 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <QMainWindow>
 #include <QVector>
 #include <QSettings>
-#include "widgets/markup_window.h"
-#include "widgets/js_case_window.h"
-#include "widgets/result_window.h"
-#include "processing/js_functions_provider.h"
-#include "processing/dir_provider.h"
+#include "markup_window.h"
+#include "js_script_window.h"
+#include "result_window.h"
+#include "../../providers/js_functions_provider.h"
+#include "../../providers/dir_provider.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,11 +35,12 @@ private:
     std::shared_ptr<DirProvider> dir_provider;
     std::shared_ptr<ISamplesProvider> samples_provider;
     std::shared_ptr<IMarkupProvider> markup_provider;
+    std::shared_ptr<IJsScriptProvider> js_script_provider;
     std::shared_ptr<QSettings> settings;
     std::shared_ptr<JsFunctionsProvider> functions_provider;
     MarkupWindow *markup_window;
-    JsCaseWindow *case_window;
+    JsScriptWindow *script_window;
     ResultWindow *result_window;
 };
 
-#endif // MAINWINDOW_H
+#endif // MAIN_WINDOW_H

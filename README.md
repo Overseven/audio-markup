@@ -6,28 +6,28 @@
 ### Examples
 #### Using system function on selected sample file
 ```js
-# get samples from selected audio file
+// get samples from selected audio file
 var input_samples = get_input_samples();
-# process samples
+// process samples
 var processed = abs(input_samples);
-# return processed samples with "processed_data" label by using system function "view_series"
+// return processed samples with "processed_data" label by using system function "view_series"
 view_series(processed, "processed_data");
 ```
 
 #### Return range data
 ```js
-# make simple ranges data
+// make simple ranges data
 var range1 = {start: 10, end: 15};
 var range2 = {start: 20, end: 30};
-# return array of ranges with "my_ranges" label by using system function "view_ranges"
+// return array of ranges with "my_ranges" label by using system function "view_ranges"
 view_ranges([range1, range2], "my_ranges");
 ```
 
 #### Return a value
 ```js
-# make simple number value
+// make simple number value
 var value = 77;
-# return a value with "my_debug_value" label by using system function "debug_value"
+// return a value with "my_debug_value" label by using system function "debug_value"
 debug_value(value, "my_debug_value");
 ```
 

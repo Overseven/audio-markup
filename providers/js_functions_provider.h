@@ -2,7 +2,7 @@
 #define JS_FUNCTIONS_PROVIDER_H
 
 #include <QMap>
-#include "common.h"
+#include "../processing/common.h"
 #include "../interfaces/i_samples_provider.h"
 
 class JsFunctionsProvider

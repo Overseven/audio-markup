@@ -5,8 +5,7 @@
 #include <QModelIndex>
 #include "../common/types.h"
 
-class ISamplesProvider{
-public:
+struct ISamplesProvider{
     virtual ~ISamplesProvider() {};
 
     virtual void reset_selection() = 0;

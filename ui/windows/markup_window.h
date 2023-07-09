@@ -6,12 +6,14 @@
 #include <QVector>
 #include "common/markup.h"
 #include "common/audio_file.h"
-#include "qcustomplot/qcustomplot.h"
-#include "graph_controls.h"
+#include "../qcustomplot/qcustomplot.h"
+#include "../widgets/audio_view_mode_selector.h"
+#include "../widgets/graph_controls.h"
 #include "../interfaces/i_samples_provider.h"
 #include "../interfaces/i_markup_provider.h"
 #include "../processing/markup_list_model.h"
 #include "../helpers/markup_draw_helper.h"
+#include "../helpers/audio_view_cache.h"
 
 namespace Ui {
     class MarkupWindow;
@@ -46,7 +48,7 @@ public:
     void set_mode(GraphControls::Mode mode);
 
 private slots:
-    void file_selection_changed();
+    void audio_file_selection_changed();
     void markups_changed(SampleKey sample_key);
 
     void on_listView_markups_clicked(const QModelIndex &index);
@@ -62,7 +64,7 @@ private slots:
 
     void on_pushButton_save_clicked();
     void keyPressEvent(QKeyEvent *event) override;
-    void on_pushButton_view_mode_set_clicked();
+    void update_audio_view_mode(AudioViewMode mode, std::optional<int> mean_window);
 
 private:
     bool is_intersected_except(const Markup::SampleDetails &sample_details, double left, double right, MarkupKey markup_key) const noexcept;
@@ -75,9 +77,6 @@ private:
     void draw_audio();
     int get_max_key(const Markup::SampleDetails &sample_details);
 
-    void update_samples_abs();
-    void update_samples_mean(int window_len);
-
 private:
     Ui::MarkupWindow *ui;
     MarkupListModel *markups_model;
@@ -85,8 +84,7 @@ private:
     std::shared_ptr<ISamplesProvider> samples_provider;
     std::shared_ptr<IMarkupProvider> markup_provider;
 
-    std::optional<QVector<double>> samples_abs;
-    std::optional<std::tuple<QVector<double>, int>> samples_mean;
+    std::unique_ptr<AudioViewCache> audio_view_cache;
 
     std::optional<NewMarkupData> new_markup_data;
     std::optional<EditMarkupData> edit_markup_data;

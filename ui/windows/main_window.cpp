@@ -1,13 +1,14 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "main_window.h"
+#include "ui_main_window.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
-#include "common/settings.h"
-#include "common/markup.h"
-#include "processing/executor.h"
-#include "processing/samples_provider.h"
-#include "processing/markup_provider.h"
+#include "../../common/settings.h"
+#include "../../common/markup.h"
+#include "../../processing/executor.h"
+#include "../../providers/samples_provider.h"
+#include "../../providers/markup_provider.h"
+#include "../../providers/js_script_provider.h"
 
 #define SETTINGS_FILE_NAME "settings.ini"
 
@@ -18,15 +19,16 @@ MainWindow::MainWindow(QWidget *parent)
       dir_provider(std::make_shared<DirProvider>()),
       samples_provider(std::make_shared<SamplesProvider>(dir_provider)),
       markup_provider(std::make_shared<MarkupProvider>(dir_provider)),
+      js_script_provider(std::make_shared<JsScriptProvider>()),
       settings(new QSettings(SETTINGS_FILE_NAME, QSettings::Format::IniFormat)),
       functions_provider(std::make_shared<JsFunctionsProvider>()),
       markup_window(new MarkupWindow(this, samples_provider, markup_provider)),
-      case_window(new JsCaseWindow(this)),
-      result_window(new ResultWindow(this))
+      script_window(new JsScriptWindow(this, js_script_provider)),
+      result_window(new ResultWindow(this, samples_provider, markup_provider, js_script_provider))
 {
     ui->setupUi(this);
     ui->tab_markup->layout()->addWidget(markup_window);
-    ui->tab_processing->layout()->addWidget(case_window);
+    ui->tab_scripts->layout()->addWidget(script_window);
     ui->tab_result->layout()->addWidget(result_window);
 
     QAction* action_open = ui->menuFile->addAction("Open dir..");
@@ -34,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     action_open->setStatusTip(tr("Open an existing dir "));
     connect(action_open, &QAction::triggered, this, &MainWindow::open_dir);
     load_samples_info();
-    connect(case_window, &JsCaseWindow::process_samples_requested, this, &MainWindow::process_samples);
+    connect(script_window, &JsScriptWindow::process_samples_requested, this, &MainWindow::process_samples);
 }
 
 MainWindow::~MainWindow()
@@ -96,6 +98,6 @@ void MainWindow::process_samples()
         return;
     }
     auto sample_details = sample_details_option.value();
-    auto result = executor.execute(samples, case_window, &func_provider);
+    auto result = executor.execute(samples, js_script_provider, &func_provider);
     result_window->draw_results(samples, sample_details, result);
 }

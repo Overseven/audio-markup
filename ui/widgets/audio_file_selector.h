@@ -1,35 +1,33 @@
-#ifndef SAMPLE_FILE_SELECTOR_H
-#define SAMPLE_FILE_SELECTOR_H
+#ifndef AUDIO_FILE_SELECTOR_H
+#define AUDIO_FILE_SELECTOR_H
 
 #include <QWidget>
 #include <QStringListModel>
-#include "../interfaces/i_samples_provider.h"
+#include "../../interfaces/i_samples_provider.h"
 
 namespace Ui {
-class SampleFileSelector;
+class AudioFileSelector;
 }
 
-class SampleFileSelector : public QWidget
+class AudioFileSelector : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SampleFileSelector(QWidget *parent = nullptr);
-    ~SampleFileSelector();
+    explicit AudioFileSelector(QWidget *parent = nullptr);
+    ~AudioFileSelector();
 
     void set_sample_provider(std::shared_ptr<ISamplesProvider> _samples_provider);
-
-signals:
-    void selection_changed();
 
 private slots:
     void on_listView_audio_files_clicked(const QModelIndex &index);
     void samples_list_changed();
+    void selection_changed();
 
 private:
-    Ui::SampleFileSelector *ui;
+    Ui::AudioFileSelector *ui;
     QStringListModel *samples_model;
     std::shared_ptr<ISamplesProvider> samples_provider;
 };
 
-#endif // SAMPLE_FILE_SELECTOR_H
+#endif // AUDIO_FILE_SELECTOR_H

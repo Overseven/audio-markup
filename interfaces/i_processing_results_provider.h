@@ -5,12 +5,10 @@
 #include <QModelIndex>
 #include "../common/types.h"
 
-class IProcessingResultsProvider {
-public:
+struct IProcessingResultsProvider {
     virtual ~IProcessingResultsProvider() {};
 
     virtual void save() = 0;
-    virtual
 
 //    virtual void reset_selection() = 0;
 //    virtual void select_sample(const SampleKey &sample_key) = 0;

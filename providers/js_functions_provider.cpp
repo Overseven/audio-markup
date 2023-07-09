@@ -17,7 +17,8 @@ int JsFunctionsProvider::load_from_files()
 QString JsFunctionsProvider::get_all_functions() const noexcept
 {
     QString result;
-    for (const auto& func_name : function_map.keys()) {
+    auto keys = function_map.keys();
+    for (const auto& func_name : keys) {
         result.append(function_map[func_name].code);
     }
     return result;
