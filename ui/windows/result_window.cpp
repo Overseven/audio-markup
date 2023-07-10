@@ -5,21 +5,28 @@ ResultWindow::ResultWindow(
         QWidget *parent,
         std::shared_ptr<ISamplesProvider> _samples_provider,
         std::shared_ptr<IMarkupProvider> _markup_provider,
-        std::shared_ptr<IJsScriptProvider> _js_script_provider
+        std::shared_ptr<IJsScriptProvider> _js_script_provider,
+        std::shared_ptr<JsFunctionsProvider> _js_function_provider
 ) :
     QWidget(parent),
     ui(new Ui::ResultWindow),
     samples_provider(_samples_provider),
     markup_provider(_markup_provider),
-    js_script_provider(_js_script_provider)
+    js_script_provider(_js_script_provider),
+    js_function_provider(_js_function_provider)
 {
     ui->setupUi(this);
     ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
     audio_view_cache = std::make_unique<AudioViewCache>();
+    processing_result_cache = std::make_unique<ProcessingResultCache>(js_script_provider);
+    executor = std::make_unique<Executor>(samples_provider, js_script_provider, js_function_provider);
+
     samples_provider->connect_to_signal_selection_changed(this, SLOT(audio_file_selection_changed()), true);
+    markup_provider->connect_to_signal_markups_changed(this, SLOT(markups_changed(SampleKey)), true);
     ui->audio_file_selector->set_sample_provider(samples_provider);
     ui->js_script_multi_selector->set_js_script_provider(js_script_provider);
-//    connect(ui->js_script_multi_selector, &JsScriptMultiSelector::selection_changed, this, &ResultWindow::selection_changed);
+
     connect(ui->audio_view_mode_selector, &AudioViewModeSelector::view_mode_changed, this, &ResultWindow::update_audio_view_mode);
 }
 
@@ -85,6 +92,12 @@ void ResultWindow::audio_file_selection_changed()
     load_markups();
 }
 
+void ResultWindow::markups_changed(SampleKey sample_key)
+{
+    Q_UNUSED(sample_key)
+    audio_file_selection_changed();
+}
+
 void ResultWindow::update_audio_view_mode(AudioViewMode mode, std::optional<int> mean_window)
 {
     auto file_selected_key = samples_provider->get_selected_file_key();
@@ -141,7 +154,6 @@ void ResultWindow::load_markups()
         return;
     }
     auto sample_details = sample_details_option.value();
-//    markups_model->clear_markup_data();
     ui->plot->clearItems();
 
     for (const auto &markup : qAsConst(sample_details.markups)) {
@@ -151,9 +163,30 @@ void ResultWindow::load_markups()
         rect->bottomRight->setCoords(markup.right, -1);
         rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
         rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
-
-//        markups_model->insert_markup(markup.key, markup.comment, static_cast<QCPAbstractItem*>(rect));
     }
+
+    auto processed_scripts = processing_result_cache->get_script_names();
+    auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
+
+    for (const auto &script_name : qAsConst(processed_scripts)) {
+        auto it = std::find_if(std::begin(selected), std::end(selected), [&script_name](SelectedScript script){ return script.filename == script_name; });
+        if (it == std::end(selected)) {
+            continue;
+        }
+        if ((*it).is_hidden) {
+            continue;
+        }
+        auto ranges = processing_result_cache->get_ranges(script_name);
+        for (const auto &range : qAsConst(ranges)) {
+            auto rect = new QCPItemRect(ui->plot);
+            rect->setSelectedPen(QPen(Qt::red));
+            rect->topLeft->setCoords(range.start, 1);
+            rect->bottomRight->setCoords(range.end, -1);
+            rect->setBrush(QBrush(Qt::blue, Qt::BrushStyle::Dense5Pattern));
+            rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
+        }
+    }
+
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
@@ -162,7 +195,14 @@ void ResultWindow::on_pushButton_execute_clicked()
     auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
     for (const auto &script : selected) {
         qDebug() << "Selected:" << script.filename << "is hidden:" << script.is_hidden;
+        if (!processing_result_cache->contains(script.filename)){
+            auto result = executor->execute_script(script.filename);
+            if (result.ranges.isEmpty()) {
+                return;
+            }
+            processing_result_cache->set_ranges(script.filename, result.ranges.last().ranges);
+        }
     }
-
+    load_markups();
 }
 

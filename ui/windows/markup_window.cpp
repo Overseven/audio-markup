@@ -13,7 +13,6 @@ MarkupWindow::MarkupWindow(
     markup_provider(_markup_provider)
 {
     ui->setupUi(this);
-    markup_draw_helper = std::make_unique<MarkupDrawHelper>(ui->plot);
     audio_view_cache = std::make_unique<AudioViewCache>();
 
     markups_model = new MarkupListModel(this);

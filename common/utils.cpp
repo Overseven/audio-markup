@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <QCryptographicHash>
 
 namespace Utils {
 
@@ -21,6 +22,14 @@ void recursive_scan_dir(QDir dir, QStringList filters, QStringList &output)
         QString newPath = dir.absolutePath() + "/" + dir_internal;
         recursive_scan_dir(QDir(newPath), filters, output);
     }
+}
+
+QByteArray hash(const QString &str)
+{
+    return QCryptographicHash::hash(
+        QByteArray::fromRawData((const char*)str.utf16(), str.length()*2),
+        QCryptographicHash::Md5
+      );
 }
 
 }

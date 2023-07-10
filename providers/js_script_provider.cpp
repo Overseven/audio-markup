@@ -69,6 +69,7 @@ void JsScriptProvider::save_script(QString filename, QString code)
     if (file.write(code.toUtf8()) == -1){
         throw "Can't write file";
     }
+    emit script_list_changed();
 }
 
 bool JsScriptProvider::connect_to_signal_script_list_changed(QObject *pReceiver, const char *pszSlot, bool bConnect) const

@@ -12,7 +12,6 @@
 #include "../interfaces/i_samples_provider.h"
 #include "../interfaces/i_markup_provider.h"
 #include "../processing/markup_list_model.h"
-#include "../helpers/markup_draw_helper.h"
 #include "../helpers/audio_view_cache.h"
 
 namespace Ui {
@@ -88,8 +87,6 @@ private:
 
     std::optional<NewMarkupData> new_markup_data;
     std::optional<EditMarkupData> edit_markup_data;
-
-    std::unique_ptr<MarkupDrawHelper> markup_draw_helper;
 };
 
 #endif // MARKUP_WINDOW_H

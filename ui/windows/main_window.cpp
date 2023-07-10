@@ -20,11 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
       samples_provider(std::make_shared<SamplesProvider>(dir_provider)),
       markup_provider(std::make_shared<MarkupProvider>(dir_provider)),
       js_script_provider(std::make_shared<JsScriptProvider>()),
+      js_function_provider(std::make_shared<JsFunctionsProvider>()),
       settings(new QSettings(SETTINGS_FILE_NAME, QSettings::Format::IniFormat)),
-      functions_provider(std::make_shared<JsFunctionsProvider>()),
       markup_window(new MarkupWindow(this, samples_provider, markup_provider)),
       script_window(new JsScriptWindow(this, js_script_provider)),
-      result_window(new ResultWindow(this, samples_provider, markup_provider, js_script_provider))
+      result_window(new ResultWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider))
 {
     ui->setupUi(this);
     ui->tab_markup->layout()->addWidget(markup_window);
@@ -82,22 +82,21 @@ void MainWindow::load_samples_info()
 void MainWindow::process_samples()
 {
     qDebug() << Q_FUNC_INFO;
-    auto func_provider = JsFunctionsProvider();
-    auto executor = Executor();
+//    auto executor = Executor();
 
-    auto selected_file_key_option = samples_provider->get_selected_file_key();
-    if (!selected_file_key_option.has_value()) {
-        qDebug() << "File not selected";
-        return;
-    }
-    auto selected_file_key = selected_file_key_option.value();
-    auto samples = samples_provider->get_selected_file_samples();
-    auto sample_details_option = markup_provider->get_sample_details(selected_file_key);
-    if (!sample_details_option.has_value()) {
-        qDebug() << "Markups not found";
-        return;
-    }
-    auto sample_details = sample_details_option.value();
-    auto result = executor.execute(samples, js_script_provider, &func_provider);
-    result_window->draw_results(samples, sample_details, result);
+//    auto selected_file_key_option = samples_provider->get_selected_file_key();
+//    if (!selected_file_key_option.has_value()) {
+//        qDebug() << "File not selected";
+//        return;
+//    }
+//    auto selected_file_key = selected_file_key_option.value();
+//    auto samples = samples_provider->get_selected_file_samples();
+//    auto sample_details_option = markup_provider->get_sample_details(selected_file_key);
+//    if (!sample_details_option.has_value()) {
+//        qDebug() << "Markups not found";
+//        return;
+//    }
+//    auto sample_details = sample_details_option.value();
+//    auto result = executor.execute(samples, js_script_provider, js_function_provider);
+//    result_window->draw_results(samples, sample_details, result);
 }

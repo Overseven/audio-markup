@@ -9,10 +9,9 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    common/processing_result.cpp \
     common/utils.cpp \
     helpers/audio_view_cache.cpp \
-    helpers/markup_draw_helper.cpp \
+    helpers/processing_result_cache.cpp \
     providers/dir_provider.cpp \
     providers/js_functions_provider.cpp \
     providers/js_global_variable_provider.cpp \
@@ -36,11 +35,10 @@ SOURCES += \
 
 HEADERS += \
     common/audio_file.h \
-    common/processing_result.h \
     common/types.h \
     common/utils.h \
     helpers/audio_view_cache.h \
-    helpers/markup_draw_helper.h \
+    helpers/processing_result_cache.h \
     interfaces/i_js_script_provider.h \
     interfaces/i_markup_provider.h \
     interfaces/i_processing_results_provider.h \

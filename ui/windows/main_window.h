@@ -36,8 +36,8 @@ private:
     std::shared_ptr<ISamplesProvider> samples_provider;
     std::shared_ptr<IMarkupProvider> markup_provider;
     std::shared_ptr<IJsScriptProvider> js_script_provider;
+    std::shared_ptr<JsFunctionsProvider> js_function_provider;
     std::shared_ptr<QSettings> settings;
-    std::shared_ptr<JsFunctionsProvider> functions_provider;
     MarkupWindow *markup_window;
     JsScriptWindow *script_window;
     ResultWindow *result_window;
