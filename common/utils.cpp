@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <QCryptographicHash>
+#include <QColor>
 
 namespace Utils {
 
@@ -28,8 +29,16 @@ QByteArray hash(const QString &str)
 {
     return QCryptographicHash::hash(
         QByteArray::fromRawData((const char*)str.utf16(), str.length()*2),
-        QCryptographicHash::Md5
-      );
+        QCryptographicHash::Md5);
+}
+
+QColor get_color(int idx)
+{
+    const int segments = 9;
+    const int minH = 20;
+    const int maxH = 300;
+    int step = (maxH - minH) / segments;
+    return QColor::fromHsl((idx % segments) * step + minH, 200, 127);
 }
 
 }

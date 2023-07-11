@@ -46,6 +46,7 @@ void JsScriptSelector::on_treeWidget_scripts_activated(const QModelIndex &index)
 void JsScriptSelector::update_tree()
 {
     qDebug() << Q_FUNC_INFO;
+    ui->treeWidget_scripts->clear();
     auto filenames = js_script_provider->get_all_scripts_filenames();
     auto items = QMap<QString, QTreeWidgetItem*>();
 

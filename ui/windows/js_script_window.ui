@@ -31,26 +31,36 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <item row="4" column="1">
-      <widget class="QPushButton" name="pushButton_new_file">
-       <property name="text">
-        <string>New file</string>
+     <item row="0" column="1" rowspan="4">
+      <widget class="JsScriptSelector" name="js_script_selector" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>10</verstretch>
+        </sizepolicy>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLineEdit" name="lineEdit_filename"/>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_filename">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>20</height>
-        </size>
-       </property>
+     <item row="4" column="1">
+      <widget class="QPushButton" name="pushButton_save_script_file">
        <property name="text">
-        <string>Filename:</string>
+        <string>Save file</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" rowspan="3">
+      <widget class="QTextBrowser" name="textBrowser_script_code">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>2</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -67,35 +77,18 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QPushButton" name="pushButton_save_script_file">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_filename">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
        <property name="text">
-        <string>Save file</string>
+        <string>Filename:</string>
        </property>
       </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QPushButton" name="pushButton_execute_and_save">
-       <property name="text">
-        <string>Execute and save</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" rowspan="4">
-      <widget class="QTextBrowser" name="textBrowser_script_code">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>2</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="readOnly">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" rowspan="4">
-      <widget class="JsScriptSelector" name="js_script_selector" native="true"/>
      </item>
     </layout>
    </item>

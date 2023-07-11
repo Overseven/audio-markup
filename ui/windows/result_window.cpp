@@ -1,5 +1,6 @@
 #include "result_window.h"
 #include "ui_result_window.h"
+#include "../../common/utils.h"
 
 ResultWindow::ResultWindow(
         QWidget *parent,
@@ -17,7 +18,7 @@ ResultWindow::ResultWindow(
 {
     ui->setupUi(this);
     ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-
+    ui->plot->legend->setVisible(true);
     audio_view_cache = std::make_unique<AudioViewCache>();
     processing_result_cache = std::make_unique<ProcessingResultCache>(js_script_provider);
     executor = std::make_unique<Executor>(samples_provider, js_script_provider, js_function_provider);
@@ -45,10 +46,12 @@ void ResultWindow::draw_audio()
     if (samples.isEmpty()) {
         return;
     }
+    ui->plot->legend->clearItems();
     ui->plot->clearGraphs();
     ui->plot->clearItems();
 
     auto graph = ui->plot->addGraph();
+    graph->setName("Audio");
     audio_view_cache->set_audio_raw(samples);
 
     auto [mode, mean_window] = ui->audio_view_mode_selector->get_mode();
@@ -154,20 +157,26 @@ void ResultWindow::load_markups()
         return;
     }
     auto sample_details = sample_details_option.value();
+    ui->plot->legend->clearItems();
     ui->plot->clearItems();
 
-    for (const auto &markup : qAsConst(sample_details.markups)) {
-        auto rect = new QCPItemRect(ui->plot);
-        rect->setSelectedPen(QPen(Qt::red));
-        rect->topLeft->setCoords(markup.left, 1);
-        rect->bottomRight->setCoords(markup.right, -1);
-        rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
-        rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
+    {
+        auto rect_list = QList<QCPItemRect*>();
+        for (const auto &markup : qAsConst(sample_details.markups)) {
+            auto rect = new QCPItemRect(ui->plot);
+            rect->setSelectedPen(QPen(Qt::red));
+            rect->topLeft->setCoords(markup.left, 1);
+            rect->bottomRight->setCoords(markup.right, -1);
+            rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
+            rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
+        }
+        auto rect_legend_item = new QCPRectListLegendItem(ui->plot->legend, rect_list, "Markups");
+        ui->plot->legend->addItem(rect_legend_item);
     }
-
     auto processed_scripts = processing_result_cache->get_script_names();
     auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
 
+    int i = 0;
     for (const auto &script_name : qAsConst(processed_scripts)) {
         auto it = std::find_if(std::begin(selected), std::end(selected), [&script_name](SelectedScript script){ return script.filename == script_name; });
         if (it == std::end(selected)) {
@@ -177,14 +186,19 @@ void ResultWindow::load_markups()
             continue;
         }
         auto ranges = processing_result_cache->get_ranges(script_name);
+        auto rect_list = QList<QCPItemRect*>();
         for (const auto &range : qAsConst(ranges)) {
             auto rect = new QCPItemRect(ui->plot);
             rect->setSelectedPen(QPen(Qt::red));
             rect->topLeft->setCoords(range.start, 1);
             rect->bottomRight->setCoords(range.end, -1);
-            rect->setBrush(QBrush(Qt::blue, Qt::BrushStyle::Dense5Pattern));
+            rect->setBrush(QBrush(Utils::get_color(i), Qt::BrushStyle::Dense5Pattern));
             rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
+            rect_list.push_back(rect);
         }
+        i++;
+        auto rect_legend_item = new QCPRectListLegendItem(ui->plot->legend, rect_list, script_name);
+        ui->plot->legend->addItem(rect_legend_item);
     }
 
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);

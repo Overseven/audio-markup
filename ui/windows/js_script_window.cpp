@@ -43,31 +43,6 @@ void JsScriptWindow::selection_changed()
     }
 }
 
-void JsScriptWindow::on_pushButton_execute_and_save_clicked()
-{
-    execute();
-//    auto samples = samples_provider->get_selected_file_samples();
-//    auto result = execute(samples);
-}
-
-void JsScriptWindow::on_pushButton_new_file_clicked()
-{
-    auto filename = ui->lineEdit_filename->text();
-    auto code = ui->textBrowser_script_code->toPlainText();
-
-    try {
-        js_script_provider->save_script(filename, code);
-    }  catch (std::exception &exc) {
-        QMessageBox::warning(this,
-            "Can't save script file",
-            exc.what(),
-            QMessageBox::Ok
-        );
-        return;
-    }
-}
-
-
 void JsScriptWindow::on_pushButton_save_script_file_clicked()
 {
     auto filename = ui->lineEdit_filename->text();
@@ -83,37 +58,5 @@ void JsScriptWindow::on_pushButton_save_script_file_clicked()
         );
         return;
     }
-
-//    QString filename = ui->lineEdit_filename->text();
-//    if (filename.isEmpty()) {
-//        QMessageBox::warning(this,
-//            "Can't create script file",
-//            "Write file name!",
-//            QMessageBox::Ok
-//        );
-//        return;
-//    }
-
-//    QString code = ui->textBrowser_script_code->toPlainText();
-//    if (code.isEmpty()) {
-//        QMessageBox::warning(this,
-//            "Can't create script file",
-//            "Write a script code!",
-//            QMessageBox::Ok
-//        );
-//        return;
-//    }
-//    QString filepath = dir_path + "/" + filename + ".js";
-//    auto file = QFile(filepath);
-//    if (!file.open(QIODevice::WriteOnly)) {
-//        QMessageBox::warning(this,
-//            "Can't create script file",
-//            "Can't open file",
-//            QMessageBox::Ok
-//        );
-//        return;
-//    }
-//    file.write(code.toUtf8());
-//    qDebug() << "Script file wrote. Filename: " << filepath;
 }
 

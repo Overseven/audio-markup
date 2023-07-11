@@ -27,8 +27,6 @@ signals:
 
 private slots:
     void selection_changed();
-    void on_pushButton_execute_and_save_clicked();
-    void on_pushButton_new_file_clicked();
     void on_pushButton_save_script_file_clicked();
 
 private:

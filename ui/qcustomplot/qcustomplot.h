@@ -5134,7 +5134,6 @@ protected:
   QFont getFont() const;
 };
 
-
 class QCP_LIB_DECL QCPLegend : public QCPLayoutGrid
 {
   Q_OBJECT
@@ -7769,6 +7768,84 @@ private:
 
 /* end of 'src/polar/polargraph.h' */
 
+class QCP_LIB_DECL QCPRectListLegendItem : public QCPAbstractLegendItem
+{
+  Q_OBJECT
+public:
+  QCPRectListLegendItem(QCPLegend *parent, QList<QCPItemRect*> rect_list, QString name) :
+      QCPAbstractLegendItem(parent),
+      mRectItems(rect_list),
+      mRectItemsName(name)
+    {
+      setAntialiased(false);
+    }
+
+  // getters:
+  QList<QCPItemRect*> rect_item() { return mRectItems; }
+
+protected:
+  // property members:
+  QList<QCPItemRect*> mRectItems;
+  QString mRectItemsName;
+
+  // reimplemented virtual methods:
+  virtual void draw(QCPPainter *painter) Q_DECL_OVERRIDE {
+      if (mRectItems.isEmpty()) return;
+      painter->setFont(getFont());
+      painter->setPen(QPen(getTextColor()));
+      QSize iconSize = mParentLegend->iconSize();
+      QRect textRect = painter->fontMetrics().boundingRect(0, 0, 0, iconSize.height(), Qt::TextDontClip, mRectItemsName);
+      QRect iconRect(mRect.topLeft(), iconSize);
+      int textHeight = qMax(textRect.height(), iconSize.height());  // if text has smaller height than icon, center text vertically in icon height, else align tops
+      painter->drawText(mRect.x()+iconSize.width()+mParentLegend->iconTextPadding(), mRect.y(), textRect.width(), textHeight, Qt::TextDontClip, mRectItemsName);
+      // draw icon:
+      painter->save();
+      painter->setClipRect(iconRect, Qt::IntersectClip);
+
+      // draw filled rect:
+      applyDefaultAntialiasingHint(painter);
+      painter->setBrush(mRectItems.first()->brush());
+      painter->setPen(mRectItems.first()->pen());
+      QRectF r = QRectF(0, 0, iconRect.width()*0.67, iconRect.height()*0.67);
+      r.moveCenter(iconRect.center());
+      painter->drawRect(r);
+
+      painter->restore();
+      // draw icon border:
+      if (getIconBorderPen().style() != Qt::NoPen)
+      {
+        painter->setPen(getIconBorderPen());
+        painter->setBrush(Qt::NoBrush);
+        int halfPen = qCeil(painter->pen().widthF()*0.5)+1;
+        painter->setClipRect(mOuterRect.adjusted(-halfPen, -halfPen, halfPen, halfPen)); // extend default clip rect so thicker pens (especially during selection) are not clipped
+        painter->drawRect(iconRect);
+      }
+  }
+  virtual QSize minimumOuterSizeHint() const Q_DECL_OVERRIDE {
+      if (mRectItems.isEmpty()) return {};
+      QSize result(0, 0);
+      QRect textRect;
+      QFontMetrics fontMetrics(getFont());
+      QSize iconSize = mParentLegend->iconSize();
+      textRect = fontMetrics.boundingRect(0, 0, 0, iconSize.height(), Qt::TextDontClip, mRectItemsName);
+      result.setWidth(iconSize.width() + mParentLegend->iconTextPadding() + textRect.width());
+      result.setHeight(qMax(textRect.height(), iconSize.height()));
+      result.rwidth() += mMargins.left()+mMargins.right();
+      result.rheight() += mMargins.top()+mMargins.bottom();
+      return result;
+  }
+
+  // non-virtual methods:
+  QPen getIconBorderPen() const {
+      return mSelected ? mParentLegend->selectedIconBorderPen() : mParentLegend->iconBorderPen();
+  }
+  QColor getTextColor() const {
+      return mSelected ? mSelectedTextColor : mTextColor;
+  }
+  QFont getFont() const {
+      return mSelected ? mSelectedFont : mFont;
+  }
+};
 
 #endif // QCUSTOMPLOT_H
 
