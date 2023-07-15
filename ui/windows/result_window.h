@@ -37,20 +37,16 @@ public:
 private slots:
     void audio_file_selection_changed();
     void markups_changed(SampleKey sample_key);
-
+    void legend_item_clicked(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent *event);
     void update_audio_view_mode(AudioViewMode mode, std::optional<int> mean_window);
-
     void on_pushButton_execute_clicked();
 
 private:
     void draw_audio();
-    void draw_markup(double left, double right, QColor color);
     void load_markups();
 
 private:
     Ui::ResultWindow *ui;
-//    MarkupListModel *markups_model;
-
     std::shared_ptr<ISamplesProvider> samples_provider;
     std::shared_ptr<IMarkupProvider> markup_provider;
     std::shared_ptr<IJsScriptProvider> js_script_provider;

@@ -48,11 +48,6 @@
        <string>Selected</string>
       </property>
      </column>
-     <column>
-      <property name="text">
-       <string>Hide</string>
-      </property>
-     </column>
     </widget>
    </item>
   </layout>

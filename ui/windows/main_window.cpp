@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
     action_open->setStatusTip(tr("Open an existing dir "));
     connect(action_open, &QAction::triggered, this, &MainWindow::open_dir);
     load_samples_info();
-    connect(script_window, &JsScriptWindow::process_samples_requested, this, &MainWindow::process_samples);
 }
 
 MainWindow::~MainWindow()
@@ -77,26 +76,4 @@ void MainWindow::load_samples_info()
     settings->endGroup();
 
     dir_provider->set_dir(dir_name);
-}
-
-void MainWindow::process_samples()
-{
-    qDebug() << Q_FUNC_INFO;
-//    auto executor = Executor();
-
-//    auto selected_file_key_option = samples_provider->get_selected_file_key();
-//    if (!selected_file_key_option.has_value()) {
-//        qDebug() << "File not selected";
-//        return;
-//    }
-//    auto selected_file_key = selected_file_key_option.value();
-//    auto samples = samples_provider->get_selected_file_samples();
-//    auto sample_details_option = markup_provider->get_sample_details(selected_file_key);
-//    if (!sample_details_option.has_value()) {
-//        qDebug() << "Markups not found";
-//        return;
-//    }
-//    auto sample_details = sample_details_option.value();
-//    auto result = executor.execute(samples, js_script_provider, js_function_provider);
-//    result_window->draw_results(samples, sample_details, result);
 }

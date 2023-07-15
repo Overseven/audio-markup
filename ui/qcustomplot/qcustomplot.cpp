@@ -18756,8 +18756,10 @@ QCPAbstractLegendItem::QCPAbstractLegendItem(QCPLegend *parent) :
   mTextColor(parent->textColor()),
   mSelectedFont(parent->selectedFont()),
   mSelectedTextColor(parent->selectedTextColor()),
+  mDisabledTextColor(parent->textColor()),
   mSelectable(true),
-  mSelected(false)
+  mSelected(false),
+  mDisabled(false)
 {
   setLayer(QLatin1String("legend"));
   setMargins(QMargins(0, 0, 0, 0));
@@ -18805,6 +18807,11 @@ void QCPAbstractLegendItem::setSelectedTextColor(const QColor &color)
   mSelectedTextColor = color;
 }
 
+void QCPAbstractLegendItem::setDisabledTextColor(const QColor &color)
+{
+  mDisabledTextColor = color;
+}
+
 /*!
   Sets whether this specific legend item is selectable.
   
@@ -18829,10 +18836,20 @@ void QCPAbstractLegendItem::setSelectable(bool selectable)
 */
 void QCPAbstractLegendItem::setSelected(bool selected)
 {
-  if (mSelected != selected)
+  if (mSelected != selected && !mDisabled)
   {
     mSelected = selected;
     emit selectionChanged(mSelected);
+  }
+}
+
+void QCPAbstractLegendItem::setDisabled(bool disabled)
+{
+  if (mDisabled != disabled)
+  {
+    setSelected(false);
+    mDisabled = disabled;
+    emit enableStateChanged(mDisabled);
   }
 }
 
@@ -18947,7 +18964,13 @@ QPen QCPPlottableLegendItem::getIconBorderPen() const
 */
 QColor QCPPlottableLegendItem::getTextColor() const
 {
-  return mSelected ? mSelectedTextColor : mTextColor;
+  if (mDisabled) {
+    return mDisabledTextColor;
+  } else if (mSelected) {
+    return mSelectedTextColor;
+  } else {
+      return mTextColor;
+  }
 }
 
 /*! \internal

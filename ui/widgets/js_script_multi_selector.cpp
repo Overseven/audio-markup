@@ -71,10 +71,9 @@ void JsScriptMultiSelector::collect_selected(QTreeWidgetItem *item, QVector<Sele
             return;
         }
         bool is_selected = it->checkState(1);
-        bool is_hidden = it->checkState(2);
         if (is_selected) {
             auto filename = get_item_path(it);
-            selected.push_back({filename, is_hidden});
+            selected.push_back({filename});
         }
     };
 

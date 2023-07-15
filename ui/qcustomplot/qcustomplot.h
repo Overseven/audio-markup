@@ -5056,8 +5056,10 @@ class QCP_LIB_DECL QCPAbstractLegendItem : public QCPLayoutElement
   Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
   Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
   Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
-  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable NOTIFY selectionChanged)
-  Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectableChanged)
+  Q_PROPERTY(QColor disabledTextColor READ disabledTextColor WRITE setDisabledTextColor)
+  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable NOTIFY selectableChanged)
+  Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectionChanged)
+  Q_PROPERTY(bool disabled READ disabled WRITE setDisabled NOTIFY enableStateChanged)
   /// \endcond
 public:
   explicit QCPAbstractLegendItem(QCPLegend *parent);
@@ -5068,22 +5070,27 @@ public:
   QColor textColor() const { return mTextColor; }
   QFont selectedFont() const { return mSelectedFont; }
   QColor selectedTextColor() const { return mSelectedTextColor; }
+  QColor disabledTextColor() const { return mDisabledTextColor; }
   bool selectable() const { return mSelectable; }
   bool selected() const { return mSelected; }
+  bool disabled() const { return mDisabled; }
   
   // setters:
   void setFont(const QFont &font);
   void setTextColor(const QColor &color);
   void setSelectedFont(const QFont &font);
   void setSelectedTextColor(const QColor &color);
+  void setDisabledTextColor(const QColor &color);
   Q_SLOT void setSelectable(bool selectable);
   Q_SLOT void setSelected(bool selected);
+  Q_SLOT void setDisabled(bool disabled);
   
   // reimplemented virtual methods:
   virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=nullptr) const Q_DECL_OVERRIDE;
   
 signals:
   void selectionChanged(bool selected);
+  void enableStateChanged(bool selected);
   void selectableChanged(bool selectable);
   
 protected:
@@ -5093,7 +5100,9 @@ protected:
   QColor mTextColor;
   QFont mSelectedFont;
   QColor mSelectedTextColor;
+  QColor mDisabledTextColor;
   bool mSelectable, mSelected;
+  bool mDisabled;
   
   // reimplemented virtual methods:
   virtual QCP::Interaction selectionCategory() const Q_DECL_OVERRIDE;
@@ -7781,7 +7790,7 @@ public:
     }
 
   // getters:
-  QList<QCPItemRect*> rect_item() { return mRectItems; }
+  QList<QCPItemRect*> rect_items() { return mRectItems; }
 
 protected:
   // property members:
@@ -7840,7 +7849,13 @@ protected:
       return mSelected ? mParentLegend->selectedIconBorderPen() : mParentLegend->iconBorderPen();
   }
   QColor getTextColor() const {
-      return mSelected ? mSelectedTextColor : mTextColor;
+      if (mDisabled) {
+        return mDisabledTextColor;
+      } else if (mSelected) {
+        return mSelectedTextColor;
+      } else {
+          return mTextColor;
+      }
   }
   QFont getFont() const {
       return mSelected ? mSelectedFont : mFont;

@@ -11,7 +11,6 @@ class JsScriptMultiSelector;
 
 struct SelectedScript {
     QString filename;
-    bool is_hidden;
 };
 
 class JsScriptMultiSelector : public QWidget

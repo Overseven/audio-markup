@@ -17,8 +17,11 @@ ResultWindow::ResultWindow(
     js_function_provider(_js_function_provider)
 {
     ui->setupUi(this);
-    ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectItems);
+    ui->plot->xAxis->setLabel("Sample index");
+    ui->plot->yAxis->setLabel("y");
     ui->plot->legend->setVisible(true);
+
     audio_view_cache = std::make_unique<AudioViewCache>();
     processing_result_cache = std::make_unique<ProcessingResultCache>(js_script_provider);
     executor = std::make_unique<Executor>(samples_provider, js_script_provider, js_function_provider);
@@ -29,6 +32,7 @@ ResultWindow::ResultWindow(
     ui->js_script_multi_selector->set_js_script_provider(js_script_provider);
 
     connect(ui->audio_view_mode_selector, &AudioViewModeSelector::view_mode_changed, this, &ResultWindow::update_audio_view_mode);
+    connect(ui->plot, &QCustomPlot::legendClick, this, &ResultWindow::legend_item_clicked);
 }
 
 ResultWindow::~ResultWindow()
@@ -56,37 +60,8 @@ void ResultWindow::draw_audio()
 
     auto [mode, mean_window] = ui->audio_view_mode_selector->get_mode();
     update_audio_view_mode(mode, mean_window);
-
-    ui->plot->xAxis->setLabel("Sample index");
-    ui->plot->yAxis->setLabel("y");
-    ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectItems);
-
     graph->rescaleAxes();
 }
-
-void ResultWindow::draw_results(QVector<double> &samples, Markup::SampleDetails &sample_details, ExecutionResult &processing_result)
-{
-    ui->plot->clearGraphs();
-    auto graph = ui->plot->addGraph();
-    QVector<double> x(samples.count());
-    for (int i = 0; i < x.length(); i++) {
-        x[i] = i;
-    }
-    graph->setData(x, samples, true);
-
-    for (auto &markup : sample_details.markups){
-        draw_markup(markup.left, markup.right, Qt::gray);
-    }
-
-    for (auto &ranges : processing_result.ranges){
-        for (auto &range : ranges.ranges){
-            draw_markup(range.start, range.end, Qt::blue);
-        }
-    }
-    ui->plot->rescaleAxes();
-    ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
-}
-
 
 void ResultWindow::audio_file_selection_changed()
 {
@@ -99,6 +74,26 @@ void ResultWindow::markups_changed(SampleKey sample_key)
 {
     Q_UNUSED(sample_key)
     audio_file_selection_changed();
+}
+
+void ResultWindow::legend_item_clicked(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent *event)
+{
+    Q_UNUSED(legend)
+    Q_UNUSED(event)
+
+    if (item == nullptr) {
+        return;
+    }
+    auto is_disable = !item->disabled();
+    item->setDisabled(is_disable);
+
+    auto rect_legend = static_cast<QCPRectListLegendItem*>(item);
+    const auto rect_items = rect_legend->rect_items();
+    for (const auto &rect : rect_items) {
+        rect->setVisible(!is_disable);
+    }
+
+    ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void ResultWindow::update_audio_view_mode(AudioViewMode mode, std::optional<int> mean_window)
@@ -131,17 +126,6 @@ void ResultWindow::update_audio_view_mode(AudioViewMode mode, std::optional<int>
     }
 
     ui->plot->yAxis->rescale();
-    ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
-}
-
-void ResultWindow::draw_markup(double left, double right, QColor color)
-{
-    auto rect = new QCPItemRect(ui->plot);
-    rect->setPen(QPen(color));
-    rect->topLeft->setCoords(left, 1);
-    rect->bottomRight->setCoords(right, -1);
-    rect->setBrush(QBrush(color, Qt::BrushStyle::Dense5Pattern));
-
     ui->plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
@@ -182,9 +166,6 @@ void ResultWindow::load_markups()
         if (it == std::end(selected)) {
             continue;
         }
-        if ((*it).is_hidden) {
-            continue;
-        }
         auto ranges = processing_result_cache->get_ranges(script_name);
         auto rect_list = QList<QCPItemRect*>();
         for (const auto &range : qAsConst(ranges)) {
@@ -198,6 +179,8 @@ void ResultWindow::load_markups()
         }
         i++;
         auto rect_legend_item = new QCPRectListLegendItem(ui->plot->legend, rect_list, script_name);
+        rect_legend_item->setDisabledTextColor(Qt::gray);
+//        connect(rect_legend_item, &QCPAbstractLegendItem::selectionChanged, this, &ResultWindow::legend_item_clicked);
         ui->plot->legend->addItem(rect_legend_item);
     }
 
@@ -208,7 +191,7 @@ void ResultWindow::on_pushButton_execute_clicked()
 {
     auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
     for (const auto &script : selected) {
-        qDebug() << "Selected:" << script.filename << "is hidden:" << script.is_hidden;
+        qDebug() << "Selected:" << script.filename;;
         if (!processing_result_cache->contains(script.filename)){
             auto result = executor->execute_script(script.filename);
             if (result.ranges.isEmpty()) {

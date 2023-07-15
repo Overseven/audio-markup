@@ -26,9 +26,6 @@ private:
     void open_dir();
     void load_samples_info();
 
-private slots:
-    void process_samples();
-
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<Markup::MarkupData> markup_data;
