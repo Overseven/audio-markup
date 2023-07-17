@@ -24,12 +24,14 @@ MainWindow::MainWindow(QWidget *parent)
       settings(new QSettings(SETTINGS_FILE_NAME, QSettings::Format::IniFormat)),
       markup_window(new MarkupWindow(this, samples_provider, markup_provider)),
       script_window(new JsScriptWindow(this, js_script_provider)),
-      result_window(new ResultWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider))
+      result_window(new ResultWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider)),
+      stats_window(new StatsWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider))
 {
     ui->setupUi(this);
     ui->tab_markup->layout()->addWidget(markup_window);
     ui->tab_scripts->layout()->addWidget(script_window);
     ui->tab_result->layout()->addWidget(result_window);
+    ui->tab_stats->layout()->addWidget(stats_window);
 
     QAction* action_open = ui->menuFile->addAction("Open dir..");
     action_open->setShortcuts(QKeySequence::Open);

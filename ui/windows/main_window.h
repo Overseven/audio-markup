@@ -7,6 +7,7 @@
 #include "markup_window.h"
 #include "js_script_window.h"
 #include "result_window.h"
+#include "stats_window.h"
 #include "../../providers/js_functions_provider.h"
 #include "../../providers/dir_provider.h"
 
@@ -38,6 +39,7 @@ private:
     MarkupWindow *markup_window;
     JsScriptWindow *script_window;
     ResultWindow *result_window;
+    StatsWindow *stats_window;
 };
 
 #endif // MAIN_WINDOW_H

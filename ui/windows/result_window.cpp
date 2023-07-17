@@ -180,7 +180,6 @@ void ResultWindow::load_markups()
         i++;
         auto rect_legend_item = new QCPRectListLegendItem(ui->plot->legend, rect_list, script_name);
         rect_legend_item->setDisabledTextColor(Qt::gray);
-//        connect(rect_legend_item, &QCPAbstractLegendItem::selectionChanged, this, &ResultWindow::legend_item_clicked);
         ui->plot->legend->addItem(rect_legend_item);
     }
 
@@ -191,7 +190,7 @@ void ResultWindow::on_pushButton_execute_clicked()
 {
     auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
     for (const auto &script : selected) {
-        qDebug() << "Selected:" << script.filename;;
+        qDebug() << Q_FUNC_INFO << "Selected:" << script.filename;
         if (!processing_result_cache->contains(script.filename)){
             auto result = executor->execute_script(script.filename);
             if (result.ranges.isEmpty()) {

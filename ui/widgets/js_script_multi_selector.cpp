@@ -129,7 +129,6 @@ void JsScriptMultiSelector::update_tree()
     auto add_item = [&items](QTreeWidgetItem* new_item, QTreeWidgetItem* parent, const QString &path, const QString &item_name) {
         new_item->setText(0, item_name);
         new_item->setCheckState(1, Qt::CheckState::Unchecked);
-        new_item->setCheckState(2, Qt::CheckState::Unchecked);
         items[path] = new_item;
         parent->addChild(new_item);
     };

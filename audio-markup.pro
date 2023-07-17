@@ -19,6 +19,7 @@ SOURCES += \
     providers/js_script_provider.cpp \
     providers/markup_provider.cpp \
     providers/samples_provider.cpp \
+    ui/widgets/audio_file_multi_selector.cpp \
     ui/widgets/audio_view_mode_selector.cpp \
     ui/widgets/js_script_multi_selector.cpp \
     ui/widgets/js_script_selector.cpp \
@@ -31,7 +32,8 @@ SOURCES += \
     ui/qcustomplot/qcustomplot.cpp \
     common/markup.cpp \
     processing/executor.cpp \
-    main.cpp
+    main.cpp \
+    ui/windows/stats_window.cpp
 
 HEADERS += \
     common/audio_file.h \
@@ -50,6 +52,7 @@ HEADERS += \
     providers/js_script_provider.h \
     providers/markup_provider.h \
     providers/samples_provider.h \
+    ui/widgets/audio_file_multi_selector.h \
     ui/widgets/audio_view_mode_selector.h \
     ui/widgets/js_script_multi_selector.h \
     ui/widgets/js_script_selector.h \
@@ -63,9 +66,11 @@ HEADERS += \
     common/markup.h \
     common/settings.h \
     processing/common.h \
-    processing/executor.h
+    processing/executor.h \
+    ui/windows/stats_window.h
 
 FORMS += \
+    ui/widgets/audio_file_multi_selector.ui \
     ui/widgets/audio_view_mode_selector.ui \
     ui/widgets/js_script_multi_selector.ui \
     ui/widgets/js_script_selector.ui \
@@ -74,7 +79,8 @@ FORMS += \
     ui/windows/markup_window.ui \
     ui/windows/result_window.ui \
     ui/widgets/audio_file_selector.ui \
-    ui/widgets/graph_controls.ui
+    ui/widgets/graph_controls.ui \
+    ui/windows/stats_window.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
