@@ -4,15 +4,14 @@
 #include <QWidget>
 #include <QStringListModel>
 #include <QVector>
-#include "common/markup.h"
-#include "common/audio_file.h"
+#include "../../common/markup.h"
 #include "../qcustomplot/qcustomplot.h"
 #include "../widgets/audio_view_mode_selector.h"
 #include "../widgets/graph_controls.h"
-#include "../interfaces/i_samples_provider.h"
-#include "../interfaces/i_markup_provider.h"
-#include "../processing/markup_list_model.h"
-#include "../helpers/audio_view_cache.h"
+#include "../../interfaces/i_samples_provider.h"
+#include "../../interfaces/i_markup_provider.h"
+#include "../../processing/markup_list_model.h"
+#include "../../helpers/audio_view_cache.h"
 
 namespace Ui {
     class MarkupWindow;

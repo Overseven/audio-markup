@@ -3,7 +3,13 @@
 
 JsScriptProvider::JsScriptProvider(QObject *parent) : QObject(parent)
 {
-    QDir dir(QDir::currentPath() + "../../js/scripts");
+    QString relative_path = "../../js/scripts";
+
+    #ifdef Q_OS_DARWIN
+        relative_path = "../../../" + relative_path;
+    #endif
+
+    QDir dir(QDir::currentPath() + relative_path);
     script_dir = dir.absolutePath();
 
     file_system_model = new QFileSystemModel();

@@ -1,6 +1,6 @@
 #include "processing_result_cache.h"
 #include <QCryptographicHash>
-#include "../../common/utils.h"
+#include "../common/utils.h"
 
 ProcessingResultCache::ProcessingResultCache(
     std::shared_ptr<IJsScriptProvider> _js_script_provider

@@ -16,6 +16,10 @@ void MarkupProvider::load()
         return;
     }
     QString dir_name = dir_option.value();
+    if (dir_name.isEmpty()) {
+        qDebug() << Q_FUNC_INFO << "dir empty";
+        return;
+    }
     QDir dir = QDir(dir_name);
 
     dir.setNameFilters({Markup::json::filename});

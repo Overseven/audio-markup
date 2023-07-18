@@ -3,7 +3,7 @@
 
 #include <QStringListModel>
 #include <QObject>
-#include <../qcustomplot/qcustomplot.h>
+#include "../ui/qcustomplot/qcustomplot.h"
 #include "../common/types.h"
 
 class MarkupListModel : public QStringListModel
