@@ -8,9 +8,15 @@ JsFunctionsProvider::JsFunctionsProvider()
 
 int JsFunctionsProvider::load_from_files()
 {
-    const QString base_dir_name = QDir::currentPath() + "/../js/functions";
+    QString relative_path = "../../js/functions";
+    #ifdef Q_OS_DARWIN
+        relative_path = "../../../" + relative_path;
+    #endif
+
+    QDir dir(QDir::currentPath() + relative_path);
+    const QString script_dir = dir.absolutePath();
     function_map = QMap<QString, JsFunction>();
-    load_dir(base_dir_name);
+    load_dir(script_dir);
     return function_map.count();
 }
 

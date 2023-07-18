@@ -206,6 +206,7 @@ void MarkupWindow::markup_item_selected(QCPAbstractItem *item, QMouseEvent *even
 
 void MarkupWindow::plot_add_pressed(QMouseEvent *event)
 {
+    qDebug() << Q_FUNC_INFO << event;
     if (event->button() == Qt::RightButton) {
         return;
     }
@@ -261,6 +262,7 @@ void MarkupWindow::plot_add_moved(QMouseEvent *event)
 
 void MarkupWindow::plot_add_released(QMouseEvent *event)
 {
+    qDebug() << Q_FUNC_INFO << event;
     disconnect(ui->plot, &QCustomPlot::mouseMove, this, &MarkupWindow::plot_add_moved);
 
     auto selected_file_key_option = samples_provider->get_selected_file_key();
@@ -270,7 +272,8 @@ void MarkupWindow::plot_add_released(QMouseEvent *event)
     auto selected_file_key = selected_file_key_option.value();
     auto sample_details_option = markup_provider->get_sample_details(selected_file_key);
     if (!sample_details_option.has_value()) {
-        return;
+        markup_provider->set_sample_details({selected_file_key, {}});
+        sample_details_option = markup_provider->get_sample_details(selected_file_key);
     }
     auto sample_details = sample_details_option.value();
     if (new_markup_data.has_value()) {
