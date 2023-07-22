@@ -96,7 +96,7 @@ void AudioFileMultiSelector::collect_selected(QTreeWidgetItem *item, QVector<QSt
         }
 
         auto item_name = it->text(0);
-        if (!item_name.endsWith(".js")) {
+        if (!item_name.endsWith(".wav")) {
             return;
         }
         bool is_selected = it->checkState(1);

@@ -32,11 +32,16 @@ struct OutputValue {
     QVariant value;
 };
 
-struct ExecutionResult {
-    QJSValue output;
+struct OutputDebug {
     QVector<OutputSeries> series;
     QVector<OutputRanges> ranges;
     QVector<OutputValue> values;
+};
+
+struct ExecutionResult {
+    QJSValue output;
+    OutputRanges ranges;
+    OutputDebug debug;
 };
 
 #endif // EXECUTOR_COMMON_H

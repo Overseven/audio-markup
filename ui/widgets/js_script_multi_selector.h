@@ -9,10 +9,6 @@ namespace Ui {
 class JsScriptMultiSelector;
 }
 
-struct SelectedScript {
-    QString filename;
-};
-
 class JsScriptMultiSelector : public QWidget
 {
     Q_OBJECT
@@ -22,7 +18,7 @@ public:
     ~JsScriptMultiSelector();
 
     void set_js_script_provider(std::shared_ptr<IJsScriptProvider> _js_script_provider);
-    QVector<SelectedScript> get_selected_scripts_filenames() const;
+    QStringList get_selected_scripts_filenames() const;
 
 signals:
     void selection_changed();
@@ -35,7 +31,7 @@ private slots:
     void dir_item_changed(QTreeWidgetItem * item, int column);
 
 private:
-    void collect_selected(QTreeWidgetItem *item, QVector<SelectedScript> &selected) const;
+    void collect_selected(QTreeWidgetItem *item, QStringList &selected) const;
     QString get_item_path(QTreeWidgetItem *item) const;
     void set_item_checkbox_state_recursive_up(QTreeWidgetItem *item, int column, Qt::CheckState state);
     void set_item_checkbox_state_recursive_down(QTreeWidgetItem *item, int column, Qt::CheckState state);

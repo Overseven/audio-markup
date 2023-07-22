@@ -99,22 +99,17 @@
        </column>
        <column>
         <property name="text">
-         <string>Min mean error file</string>
+         <string>Max error</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>Min median error file</string>
+         <string>Max error file</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>Max mean error file</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Max median error file</string>
+         <string>Invalid</string>
         </property>
        </column>
       </widget>

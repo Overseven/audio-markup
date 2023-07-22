@@ -19,6 +19,7 @@ public:
     virtual std::optional<SampleKey> get_selected_file_key() override;
 
     virtual QVector<double> get_selected_file_samples() override;
+    virtual QVector<double> get_file_samples(const QString &filename) override;
     virtual QList<std::tuple<SampleKey, QVector<double>>> get_all_files_samples() override;
     virtual QVector<SampleKey> get_files_list() override;
 

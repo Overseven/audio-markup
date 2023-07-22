@@ -14,7 +14,7 @@ public:
             std::shared_ptr<IJsScriptProvider> _js_script_provider,
             std::shared_ptr<JsFunctionsProvider> _js_function_provider);
 
-    ExecutionResult execute_script(const QString &script_name);
+    ExecutionResult execute_script(const QString &script_name, const QString &audio_file_name = "");
 
 private:
     std::shared_ptr<ISamplesProvider> samples_provider;

@@ -34,7 +34,7 @@ QByteArray hash(const QString &str)
 
 QColor get_color(int idx)
 {
-    const int segments = 9;
+    const int segments = 7;
     const int minH = 20;
     const int maxH = 300;
     int step = (maxH - minH) / segments;

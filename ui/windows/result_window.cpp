@@ -65,7 +65,6 @@ void ResultWindow::draw_audio()
 
 void ResultWindow::audio_file_selection_changed()
 {
-    qDebug() << Q_FUNC_INFO;
     draw_audio();
     load_markups();
 }
@@ -136,33 +135,34 @@ void ResultWindow::load_markups()
         return;
     }
     auto selected_file_key = selected_file_key_option.value();
-    auto sample_details_option = markup_provider->get_sample_details(selected_file_key);
-    if (!sample_details_option.has_value()) {
-        return;
-    }
-    auto sample_details = sample_details_option.value();
+
     ui->plot->legend->clearItems();
     ui->plot->clearItems();
 
-    {
-        auto rect_list = QList<QCPItemRect*>();
-        for (const auto &markup : qAsConst(sample_details.markups)) {
-            auto rect = new QCPItemRect(ui->plot);
-            rect->setSelectedPen(QPen(Qt::red));
-            rect->topLeft->setCoords(markup.left, 1);
-            rect->bottomRight->setCoords(markup.right, -1);
-            rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
-            rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
+    auto sample_details_option = markup_provider->get_sample_details(selected_file_key);
+    if (sample_details_option.has_value()) {
+        auto sample_details = sample_details_option.value();
+        {
+            auto rect_list = QList<QCPItemRect*>();
+            for (const auto &markup : qAsConst(sample_details.markups)) {
+                auto rect = new QCPItemRect(ui->plot);
+                rect->setSelectedPen(QPen(Qt::red));
+                rect->topLeft->setCoords(markup.left, 1);
+                rect->bottomRight->setCoords(markup.right, -1);
+                rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
+                rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
+            }
+            auto rect_legend_item = new QCPRectListLegendItem(ui->plot->legend, rect_list, "Markups");
+            ui->plot->legend->addItem(rect_legend_item);
         }
-        auto rect_legend_item = new QCPRectListLegendItem(ui->plot->legend, rect_list, "Markups");
-        ui->plot->legend->addItem(rect_legend_item);
     }
+
     auto processed_scripts = processing_result_cache->get_script_names();
     auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
 
     int i = 0;
     for (const auto &script_name : qAsConst(processed_scripts)) {
-        auto it = std::find_if(std::begin(selected), std::end(selected), [&script_name](SelectedScript script){ return script.filename == script_name; });
+        auto it = std::find(std::begin(selected), std::end(selected), script_name);
         if (it == std::end(selected)) {
             continue;
         }
@@ -190,13 +190,9 @@ void ResultWindow::on_pushButton_execute_clicked()
 {
     auto selected = ui->js_script_multi_selector->get_selected_scripts_filenames();
     for (const auto &script : selected) {
-        qDebug() << Q_FUNC_INFO << "Selected:" << script.filename;
-        if (!processing_result_cache->contains(script.filename)){
-            auto result = executor->execute_script(script.filename);
-            if (result.ranges.isEmpty()) {
-                return;
-            }
-            processing_result_cache->set_ranges(script.filename, result.ranges.last().ranges);
+        if (!processing_result_cache->contains(script)){
+            auto result = executor->execute_script(script);
+            processing_result_cache->set_ranges(script, result.ranges.ranges);
         }
     }
     load_markups();

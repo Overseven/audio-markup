@@ -21,9 +21,9 @@ void JsScriptMultiSelector::set_js_script_provider(std::shared_ptr<IJsScriptProv
     connect(ui->treeWidget_scripts, &QTreeWidget::itemChanged, this, &JsScriptMultiSelector::dir_item_changed);
 }
 
-QVector<SelectedScript> JsScriptMultiSelector::get_selected_scripts_filenames() const
+QStringList JsScriptMultiSelector::get_selected_scripts_filenames() const
 {
-    auto selected = QVector<SelectedScript>();
+    QStringList selected;
 
     auto root = ui->treeWidget_scripts->invisibleRootItem();
     if (root->childCount() == 0) {
@@ -47,7 +47,6 @@ void JsScriptMultiSelector::dir_item_changed(QTreeWidgetItem *item, int column)
         return;
     }
     auto state = item->checkState(column);
-    qDebug() << "column" << column << "state" << state;
 
     ui->treeWidget_scripts->blockSignals(true);
 
@@ -59,7 +58,7 @@ void JsScriptMultiSelector::dir_item_changed(QTreeWidgetItem *item, int column)
     ui->treeWidget_scripts->blockSignals(false);
 }
 
-void JsScriptMultiSelector::collect_selected(QTreeWidgetItem *item, QVector<SelectedScript> &selected) const
+void JsScriptMultiSelector::collect_selected(QTreeWidgetItem *item, QStringList &selected) const
 {
     auto check_and_add_to_selected = [this, &selected](QTreeWidgetItem *it) {
         if (it == ui->treeWidget_scripts->invisibleRootItem()) {

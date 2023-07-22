@@ -48,6 +48,30 @@ QVector<double> SamplesProvider::get_selected_file_samples()
     return audio_file.samples[0];
 }
 
+QVector<double> SamplesProvider::get_file_samples(const QString &filename)
+{
+    if (selected_file.has_value() && selected_file.value() == filename){
+        return get_selected_file_samples();
+    }
+
+    auto dir_option = dir_provider->get_dir();
+    if (!dir_option.has_value()) {
+        qDebug() << Q_FUNC_INFO << "dir not selected";
+        return {};
+    }
+    auto dir = dir_option.value();
+    QString file_path = dir + "/" + filename;
+    auto file = AudioFile<double>();
+    if (!file.load(file_path.toStdString())) {
+        qDebug() << Q_FUNC_INFO << "can't open file:" << file_path;
+        return {};
+    }
+    if (audio_file.getNumChannels() == 0) {
+        return {};
+    }
+    return audio_file.samples[0];
+}
+
 QList<std::tuple<SampleKey, QVector<double> > > SamplesProvider::get_all_files_samples()
 {
     auto dir_option = dir_provider->get_dir();

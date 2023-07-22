@@ -20,6 +20,7 @@ public:
 
 
     virtual std::optional<Markup::Markup> get_markup(const SampleKey &sample_key, const MarkupKey &markup_key) const override;
+    virtual QVector<Markup::Markup> get_sorted_markups(const SampleKey &sample_key) const override;
     virtual void set_markup(const SampleKey &sample_key, const Markup::Markup &markup) override;
     virtual void remove_markup(const SampleKey &sample_key, const MarkupKey &markup_key) override;
     virtual bool connect_to_signal_markups_changed(QObject* pReceiver, const char* pszSlot, bool bConnect) const override;

@@ -12,6 +12,7 @@ struct ISamplesProvider{
     virtual void select_sample(const SampleKey &sample_key) = 0;
     virtual std::optional<QString> get_selected_file_key() = 0;
     virtual QVector<double> get_selected_file_samples() = 0;
+    virtual QVector<double> get_file_samples(const QString &filename) = 0;
     virtual QList<std::tuple<SampleKey, QVector<double>>> get_all_files_samples() = 0;
     virtual QVector<QString> get_files_list() = 0;
 

@@ -68,6 +68,20 @@ std::optional<Markup::Markup> MarkupProvider::get_markup(const SampleKey &sample
     return {};
 }
 
+QVector<Markup::Markup> MarkupProvider::get_sorted_markups(const SampleKey &sample_key) const
+{
+    auto it = markup_data.sample_details.find(sample_key);
+    if (it == std::end(markup_data.sample_details)) {
+        return {};
+    }
+    auto markups = (*it).markups.values();
+    std::sort(std::begin(markups), std::end(markups),
+              [](const Markup::Markup &v1, const Markup::Markup &v2) {
+        return v1.left < v2.left;
+    });
+    return markups;
+}
+
 void MarkupProvider::set_markup(const SampleKey &sample_key, const Markup::Markup &markup)
 {
     markup_data.sample_details[sample_key].markups[markup.key] = markup;
