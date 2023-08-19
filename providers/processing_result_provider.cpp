@@ -256,6 +256,5 @@ std::optional<ProcessingResultFile> ProcessingResultProvider::load_processing_re
             }
         }
     }
-    save_processing_result_file(directory, "test.json", result);
     return result;
 }
