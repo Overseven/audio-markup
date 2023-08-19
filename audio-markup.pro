@@ -18,6 +18,7 @@ SOURCES += \
     processing/markup_list_model.cpp \
     providers/js_script_provider.cpp \
     providers/markup_provider.cpp \
+    providers/processing_result_provider.cpp \
     providers/samples_provider.cpp \
     ui/widgets/audio_file_multi_selector.cpp \
     ui/widgets/audio_view_mode_selector.cpp \
@@ -30,7 +31,6 @@ SOURCES += \
     ui/widgets/audio_file_selector.cpp \
     ui/widgets/graph_controls.cpp \
     ui/qcustomplot/qcustomplot.cpp \
-    common/markup.cpp \
     processing/executor.cpp \
     main.cpp \
     ui/windows/stats_window.cpp
@@ -43,7 +43,7 @@ HEADERS += \
     helpers/processing_result_cache.h \
     interfaces/i_js_script_provider.h \
     interfaces/i_markup_provider.h \
-    interfaces/i_processing_results_provider.h \
+    interfaces/i_processing_result_provider.h \
     interfaces/i_samples_provider.h \
     providers/dir_provider.h \
     providers/js_functions_provider.h \
@@ -51,6 +51,7 @@ HEADERS += \
     processing/markup_list_model.h \
     providers/js_script_provider.h \
     providers/markup_provider.h \
+    providers/processing_result_provider.h \
     providers/samples_provider.h \
     ui/widgets/audio_file_multi_selector.h \
     ui/widgets/audio_view_mode_selector.h \
@@ -63,7 +64,6 @@ HEADERS += \
     ui/widgets/audio_file_selector.h \
     ui/widgets/graph_controls.h \
     ui/qcustomplot/qcustomplot.h \
-    common/markup.h \
     common/settings.h \
     processing/common.h \
     processing/executor.h \

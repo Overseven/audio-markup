@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "../../common/settings.h"
-#include "../../common/markup.h"
+#include "../../common/types.h"
 #include "../../processing/executor.h"
 #include "../../providers/samples_provider.h"
 #include "../../providers/markup_provider.h"
@@ -15,17 +15,18 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      markup_data(std::make_shared<Markup::MarkupData>()),
+      markup_data(std::make_shared<MarkupData>()),
       dir_provider(std::make_shared<DirProvider>()),
       samples_provider(std::make_shared<SamplesProvider>(dir_provider)),
       markup_provider(std::make_shared<MarkupProvider>(dir_provider)),
       js_script_provider(std::make_shared<JsScriptProvider>()),
       js_function_provider(std::make_shared<JsFunctionsProvider>()),
+      processing_result_provider(std::make_shared<ProcessingResultProvider>(dir_provider)),
       settings(new QSettings(SETTINGS_FILE_NAME, QSettings::Format::IniFormat)),
       markup_window(new MarkupWindow(this, samples_provider, markup_provider)),
       script_window(new JsScriptWindow(this, js_script_provider)),
       result_window(new ResultWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider)),
-      stats_window(new StatsWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider))
+      stats_window(new StatsWindow(this, samples_provider, markup_provider, js_script_provider, js_function_provider, processing_result_provider))
 {
     ui->setupUi(this);
     ui->tab_markup->layout()->addWidget(markup_window);

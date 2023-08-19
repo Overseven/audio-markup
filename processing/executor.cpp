@@ -48,7 +48,7 @@ ExecutionResult Executor::execute_script(const QString &script_name, const QStri
 
     qDebug() << "Output ranges:" << ranges.name;
     for (const auto& r : ranges.ranges) {
-        qDebug() << "  start:" << r.start << "end:" << r.end;
+        qDebug() << "  left:" << r.left << "right:" << r.right;
         qDebug() << "";
     }
 
@@ -61,7 +61,7 @@ ExecutionResult Executor::execute_script(const QString &script_name, const QStri
     for (const auto& r : debug_ranges) {
         qDebug() << "  Ranges name:" << r.name;
         for (const auto& rr : r.ranges) {
-            qDebug() << "  start:" << rr.start << "end:" << rr.end;
+            qDebug() << "  left:" << rr.left << "right:" << rr.right;
         }
         qDebug() << "";
     }

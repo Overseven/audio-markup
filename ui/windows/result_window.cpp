@@ -147,8 +147,8 @@ void ResultWindow::load_markups()
             for (const auto &markup : qAsConst(sample_details.markups)) {
                 auto rect = new QCPItemRect(ui->plot);
                 rect->setSelectedPen(QPen(Qt::red));
-                rect->topLeft->setCoords(markup.left, 1);
-                rect->bottomRight->setCoords(markup.right, -1);
+                rect->topLeft->setCoords(markup.range.left, 1);
+                rect->bottomRight->setCoords(markup.range.right, -1);
                 rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
                 rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
             }
@@ -171,8 +171,8 @@ void ResultWindow::load_markups()
         for (const auto &range : qAsConst(ranges)) {
             auto rect = new QCPItemRect(ui->plot);
             rect->setSelectedPen(QPen(Qt::red));
-            rect->topLeft->setCoords(range.start, 1);
-            rect->bottomRight->setCoords(range.end, -1);
+            rect->topLeft->setCoords(range.left, 1);
+            rect->bottomRight->setCoords(range.right, -1);
             rect->setBrush(QBrush(Utils::get_color(i), Qt::BrushStyle::Dense5Pattern));
             rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
             rect_list.push_back(rect);

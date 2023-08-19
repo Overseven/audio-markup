@@ -38,13 +38,10 @@ void AudioFileMultiSelector::update_list()
 
 void AudioFileMultiSelector::item_changed(QTreeWidgetItem *item, int column)
 {
-    qDebug() << Q_FUNC_INFO;
     if (column == 0) {
         return;
     }
     auto state = item->checkState(column);
-    qDebug() << Q_FUNC_INFO << "column" << column << "state" << state;
-
     ui->treeWidget->blockSignals(true);
 
     set_item_checkbox_state_recursive_down(item, column, state);

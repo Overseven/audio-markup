@@ -71,16 +71,16 @@ void MarkupWindow::markups_changed(SampleKey sample_key)
     load_markups();
 }
 
-bool MarkupWindow::is_intersected_except(const Markup::SampleDetails &sample_details, double left, double right, MarkupKey except_markup_key)  const noexcept
+bool MarkupWindow::is_intersected_except(const SampleDetails &sample_details, double left, double right, MarkupKey except_markup_key)  const noexcept
 {
     for (const auto &m : sample_details.markups) {
         if (m.key == except_markup_key){
             continue;
         }
         if (
-                ((left >= m.left && left  <= m.right)
-             || (right >= m.left && right <= m.right)
-             || (left  <= m.left && right >= m.right))
+                ((left >= m.range.left && left  <= m.range.right)
+             || (right >= m.range.left && right <= m.range.right)
+             || (left  <= m.range.left && right >= m.range.right))
             ){
                 return true;
         }
@@ -88,13 +88,13 @@ bool MarkupWindow::is_intersected_except(const Markup::SampleDetails &sample_det
     return false;
 }
 
-bool MarkupWindow::is_intersected_any(const Markup::SampleDetails &sample_details, double left, double right) const noexcept
+bool MarkupWindow::is_intersected_any(const SampleDetails &sample_details, double left, double right) const noexcept
 {
     for (const auto &m : sample_details.markups) {
         if (
-                ((left >= m.left && left  <= m.right)
-             || (right >= m.left && right <= m.right)
-             || (left  <= m.left && right >= m.right))
+                ((left >= m.range.left && left  <= m.range.right)
+             || (right >= m.range.left && right <= m.range.right)
+             || (left  <= m.range.left && right >= m.range.right))
             ){
                 return true;
         }
@@ -136,8 +136,8 @@ void MarkupWindow::load_markups()
     for (const auto &markup : qAsConst(sample_details.markups)) {
         auto rect = new QCPItemRect(ui->plot);
         rect->setSelectedPen(QPen(Qt::red));
-        rect->topLeft->setCoords(markup.left, 1);
-        rect->bottomRight->setCoords(markup.right, -1);
+        rect->topLeft->setCoords(markup.range.left, 1);
+        rect->bottomRight->setCoords(markup.range.right, -1);
         rect->setBrush(QBrush(Qt::gray, Qt::BrushStyle::Dense5Pattern));
         rect->setSelectedBrush(QBrush(Qt::red, Qt::BrushStyle::Dense5Pattern));
 
@@ -172,7 +172,7 @@ void MarkupWindow::draw_audio()
     graph->rescaleAxes();
 }
 
-int MarkupWindow::get_max_key(const Markup::SampleDetails &sample_details)
+int MarkupWindow::get_max_key(const SampleDetails &sample_details)
 {
     int max_key = -1;
     for (const auto &m : sample_details.markups) {
@@ -229,7 +229,7 @@ void MarkupWindow::plot_add_pressed(QMouseEvent *event)
         bool intersected = std::any_of(
             sample_details.markups.begin(),
             sample_details.markups.end(),
-            [&](const Markup::Markup &m) { return x >= m.left && x <= m.right; }
+            [&](const Markup &m) { return x >= m.range.left && x <= m.range.right; }
         );
         if (intersected) {
             return;
@@ -290,10 +290,12 @@ void MarkupWindow::plot_add_released(QMouseEvent *event)
         }
 
         int max_key = get_max_key(sample_details);
-        auto new_markup = Markup::Markup{
+        auto new_markup = Markup{
             max_key+1,
-            static_cast<int>(start),
-            static_cast<int>(end),
+            {
+                static_cast<int>(start),
+                static_cast<int>(end)
+            },
             QString("markup_") + QString::number(max_key+1)
         };
         markup_provider->set_markup(sample_details.filename, new_markup);
@@ -332,14 +334,14 @@ void MarkupWindow::plot_edit_pressed(QMouseEvent *event)
     auto x = ui->plot->xAxis->pixelToCoord(event->position().x());
     auto markup = sample_details.markups[markup_key];
 
-    double range = markup.right - markup.left;
+    double range = markup.range.right - markup.range.left;
     double active_range_coeff = 0.1;
 
-    double left_start_range = markup.left - range * active_range_coeff;
-    double left_end_range = markup.left + range * active_range_coeff;
+    double left_start_range = markup.range.left - range * active_range_coeff;
+    double left_end_range = markup.range.left + range * active_range_coeff;
 
-    double right_start_range = markup.right - range * active_range_coeff;
-    double right_end_range = markup.right + range * active_range_coeff;
+    double right_start_range = markup.range.right - range * active_range_coeff;
+    double right_end_range = markup.range.right + range * active_range_coeff;
 
     bool is_left_edit = false;
     if (x >= left_start_range && x <= left_end_range) {
@@ -442,8 +444,8 @@ void MarkupWindow::plot_edit_released(QMouseEvent *event)
             edit_markup.markup_key)
     ){
         auto markup = sample_details.markups[edit_markup.markup_key];
-        markup.left = edit_markup.rect->topLeft->key();
-        markup.right = edit_markup.rect->bottomRight->key();
+        markup.range.left = edit_markup.rect->topLeft->key();
+        markup.range.right = edit_markup.rect->bottomRight->key();
         edit_markup_data.reset();
         markup_provider->set_markup(selected_file_key, markup);
         return;

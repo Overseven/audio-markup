@@ -6,7 +6,8 @@ StatsWindow::StatsWindow(
         std::shared_ptr<ISamplesProvider> _samples_provider,
         std::shared_ptr<IMarkupProvider> _markup_provider,
         std::shared_ptr<IJsScriptProvider> _js_script_provider,
-        std::shared_ptr<JsFunctionsProvider> _js_function_provider
+        std::shared_ptr<JsFunctionsProvider> _js_function_provider,
+        std::shared_ptr<IProcessingResultProvider> _processing_result_provider
 ) :
     QWidget(parent),
     ui(new Ui::StatsWindow),
@@ -14,6 +15,7 @@ StatsWindow::StatsWindow(
     markup_provider(_markup_provider),
     js_script_provider(_js_script_provider),
     js_function_provider(_js_function_provider),
+    processing_result_provider(_processing_result_provider),
     executor(std::make_unique<Executor>(_samples_provider, _js_script_provider, _js_function_provider))
 {
     ui->setupUi(this);
@@ -28,7 +30,7 @@ StatsWindow::~StatsWindow()
 }
 
 struct AudioResult {
-    QVector<Markup::Markup> markups;
+    QVector<Markup> markups;
     // script -> range errors
     QMap<QString, QVector<double>> range_errors;
 };
@@ -77,8 +79,8 @@ void StatsWindow::on_pushButton_execute_clicked()
 
             const size_t markups_len = markups.length();
             for (size_t i = 0; i < markups_len; i++) {
-                auto left_error = qAbs(markups[i].left - exec_result.ranges.ranges[i].start);
-                auto right_error = qAbs(markups[i].right - exec_result.ranges.ranges[i].end);
+                auto left_error = qAbs(markups[i].range.left - exec_result.ranges.ranges[i].left);
+                auto right_error = qAbs(markups[i].range.right - exec_result.ranges.ranges[i].right);
                 auto error = (left_error + right_error) / 2.0;
 
                 if (script_stats.max_error_file.isEmpty()) {

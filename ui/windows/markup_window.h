@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QStringListModel>
 #include <QVector>
-#include "../../common/markup.h"
+#include "../../common/types.h"
 #include "../qcustomplot/qcustomplot.h"
 #include "../widgets/audio_view_mode_selector.h"
 #include "../widgets/graph_controls.h"
@@ -65,15 +65,15 @@ private slots:
     void update_audio_view_mode(AudioViewMode mode, std::optional<int> mean_window);
 
 private:
-    bool is_intersected_except(const Markup::SampleDetails &sample_details, double left, double right, MarkupKey markup_key) const noexcept;
-    bool is_intersected_any(const Markup::SampleDetails &sample_details, double left, double right) const noexcept;
+    bool is_intersected_except(const SampleDetails &sample_details, double left, double right, MarkupKey markup_key) const noexcept;
+    bool is_intersected_any(const SampleDetails &sample_details, double left, double right) const noexcept;
 
     std::optional<std::tuple<MarkupKey, QCPItemRect*>>
         get_selected_markup();
 
     void load_markups();
     void draw_audio();
-    int get_max_key(const Markup::SampleDetails &sample_details);
+    int get_max_key(const SampleDetails &sample_details);
 
 private:
     Ui::MarkupWindow *ui;

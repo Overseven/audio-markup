@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QJSValue>
 #include <QVariant>
+#include "../common/types.h"
 
 struct JsFunction {
     QString name;
@@ -15,11 +16,6 @@ struct JsFunction {
 struct OutputSeries {
     QString name;
     QVector<double> data;
-};
-
-struct Range {
-    int start;
-    int end;
 };
 
 struct OutputRanges {

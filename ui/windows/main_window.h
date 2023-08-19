@@ -10,6 +10,7 @@
 #include "stats_window.h"
 #include "../../providers/js_functions_provider.h"
 #include "../../providers/dir_provider.h"
+#include "../../providers/processing_result_provider.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,12 +30,13 @@ private:
 
 private:
     Ui::MainWindow *ui;
-    std::shared_ptr<Markup::MarkupData> markup_data;
+    std::shared_ptr<MarkupData> markup_data;
     std::shared_ptr<DirProvider> dir_provider;
     std::shared_ptr<ISamplesProvider> samples_provider;
     std::shared_ptr<IMarkupProvider> markup_provider;
     std::shared_ptr<IJsScriptProvider> js_script_provider;
     std::shared_ptr<JsFunctionsProvider> js_function_provider;
+    std::shared_ptr<ProcessingResultProvider> processing_result_provider;
     std::shared_ptr<QSettings> settings;
     MarkupWindow *markup_window;
     JsScriptWindow *script_window;

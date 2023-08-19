@@ -9,7 +9,7 @@ void recursive_scan_dir(QDir dir, QStringList filters, QStringList &output)
     dir.setNameFilters(filters);
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
-    qDebug() << Q_FUNC_INFO << "Scanning: " << dir.path();
+//    qDebug() << Q_FUNC_INFO << "Scanning: " << dir.path();
 
     QStringList filenames = dir.entryList();
     for (const auto &filename : filenames) {

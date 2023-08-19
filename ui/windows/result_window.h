@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "../../processing/executor.h"
 #include "../../processing/common.h"
-#include "../../common/markup.h"
+#include "../../common/types.h"
 #include "../../helpers/audio_view_cache.h"
 #include "../../helpers/processing_result_cache.h"
 #include "../../interfaces/i_samples_provider.h"
@@ -32,7 +32,7 @@ public:
 
     ~ResultWindow();
 
-    void draw_results(QVector<double> &samples, Markup::SampleDetails &sample_details, ExecutionResult &processing_result);
+    void draw_results(QVector<double> &samples, SampleDetails &sample_details, ExecutionResult &processing_result);
 
 private slots:
     void audio_file_selection_changed();
